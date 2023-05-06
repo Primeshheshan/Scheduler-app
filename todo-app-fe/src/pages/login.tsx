@@ -1,14 +1,18 @@
+import { SuccessAlert } from '@/components/alerts';
 import Button from '@/components/button';
 import Card from '@/components/card';
+import axios from 'axios';
 import { useFormik } from 'formik';
+import { useState } from 'react';
 import * as Yup from 'yup';
 
 const LoginPage = () => {
+  const [isReqSuccess, setisReqSuccess] = useState(false);
   const SignupSchema = Yup.object().shape({
     email: Yup.string().email('Invalid email').required('Email is required'),
     password: Yup.string()
       .required('Password is required')
-      .min(8, 'Password is too short - should be 8 chars minimum'),
+      .min(4, 'Password is too short - should be 8 chars minimum'),
   });
 
   const formik = useFormik({
@@ -17,8 +21,20 @@ const LoginPage = () => {
       password: '',
     },
     validationSchema: SignupSchema,
-    onSubmit: (values: { email: string; password: string }) => {},
+    onSubmit: async (values: { email: string; password: string }) => {
+      const response = await axios.post(
+        `http://localhost:8080/api/v1/auth/login`,
+        {
+          username: values.email,
+          password: values.password,
+        }
+      );
+      if (response.status === 201) setisReqSuccess(true);
+      formik.resetForm();
+    },
   });
+
+  const resetForm = () => {};
 
   return (
     <>
@@ -92,6 +108,12 @@ const LoginPage = () => {
             </Button>
           </form>
         </Card>
+        {isReqSuccess && (
+          <SuccessAlert
+            message='User created successfully!'
+            description='Congratulations, your account has been successfully created. Thank you for being awesome!'
+          />
+        )}
       </div>
     </>
   );
