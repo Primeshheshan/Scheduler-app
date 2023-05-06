@@ -1,22 +1,40 @@
 import Button from '@/components/button';
 import Card from '@/components/card';
+import { useFormik } from 'formik';
+import * as Yup from 'yup';
 
-const Login = () => {
+const LoginPage = () => {
+  const SignupSchema = Yup.object().shape({
+    email: Yup.string().email('Invalid email').required('Email is required'),
+    password: Yup.string()
+      .required('Password is required')
+      .min(8, 'Password is too short - should be 8 chars minimum'),
+  });
+
+  const formik = useFormik({
+    initialValues: {
+      email: '',
+      password: '',
+    },
+    validationSchema: SignupSchema,
+    onSubmit: (values: { email: string; password: string }) => {},
+  });
+
   return (
     <>
       <div className='h-screen flex items-center justify-center'>
         <Card>
-          <h2 className='mb-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900'>
+          <h2 className='mb-8 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900  '>
             Sign In To Your Account
           </h2>
-          <div className='sm:mx-auto w-80'>
-            <form>
+          <form onSubmit={formik.handleSubmit}>
+            <div className='sm:mx-auto w-80'>
               <div>
                 <label
                   htmlFor='email'
                   className='block text-sm font-medium leading-6 text-gray-900 mb-2'
                 >
-                  Email address
+                  Email
                 </label>
                 <input
                   id='email'
@@ -24,13 +42,18 @@ const Login = () => {
                   type='email'
                   autoComplete='email'
                   required
+                  onChange={formik.handleChange}
+                  value={formik.values.email}
                   className='block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6'
                 />
+                {formik.errors.email && formik.touched.email ? (
+                  <div className='text-xs text-red-500 mt-1 font-semibold'>
+                    {formik.errors.email}
+                  </div>
+                ) : null}
               </div>
-            </form>
-          </div>
-          <div className='mt-5 sm:mx-auto sm:w-full sm:max-w-sm'>
-            <form>
+            </div>
+            <div className='mt-5 sm:mx-auto sm:w-full sm:max-w-sm'>
               <div>
                 <div className='flex items-center justify-between'>
                   <label
@@ -53,15 +76,24 @@ const Login = () => {
                   name='password'
                   type='password'
                   required
+                  onChange={formik.handleChange}
+                  value={formik.values.password}
                   className='block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6'
                 />
+                {formik.errors.password && formik.touched.password ? (
+                  <div className='text-xs text-red-500 mt-1 font-semibold'>
+                    {formik.errors.password}
+                  </div>
+                ) : null}
               </div>
-            </form>
-          </div>
-          <Button className='mx-auto mt-5'> Sign in</Button>
+            </div>
+            <Button className='mx-auto mt-6' type='submit'>
+              Sign in
+            </Button>
+          </form>
         </Card>
       </div>
     </>
   );
 };
-export default Login;
+export default LoginPage;
