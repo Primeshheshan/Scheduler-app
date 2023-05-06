@@ -13,7 +13,7 @@ app.use(cors());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
-app.use('/auth', userRoutes);
+app.use('/api/v1/auth', userRoutes);
 
 app.use((error, req, res, next) => {
   res.status(500).json({ message: error.message });
