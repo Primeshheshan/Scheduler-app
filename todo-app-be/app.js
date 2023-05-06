@@ -1,12 +1,17 @@
-const express = require('express');
-const app = express();
-const bodyParser = require('body-parser');
-app.use(bodyParser.json());
-const port = 8080;
-const mongoConnect = require('./src/utils/database').mongoConnect;
-const userRoutes = require('./src/routes/user');
+import express from 'express';
+import * as dotenv from 'dotenv';
+import mongoose from 'mongoose';
+import bodyParser from 'body-parser';
+import userRoutes from './src/routes/user.js';
+import cors from 'cors';
 
+const app = express();
+const port = 8080;
+dotenv.config();
+
+app.use(cors());
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 
 app.use('/auth', userRoutes);
 
@@ -14,7 +19,17 @@ app.use((error, req, res, next) => {
   res.status(500).json({ message: error.message });
 });
 
-mongoConnect(() => {
-  app.listen(port);
-  console.log(`App listening on ${port}`);
-});
+const connectDb = async () => {
+  try {
+    await mongoose.connect(
+      `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@cluster0.zlhb3u9.mongodb.net/todo?retryWrites=true&w=majority`
+    );
+    app.listen(port);
+    console.log('Connected to MongoDB');
+    console.log(`App listening on ${port}`);
+  } catch (error) {
+    console.log('Failed to connect to MongoDB', error);
+  }
+};
+
+connectDb();

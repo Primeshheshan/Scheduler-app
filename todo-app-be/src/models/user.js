@@ -1,20 +1,17 @@
-const getDb = require('../utils/database').getDb;
+import mongoose from 'mongoose';
+const { Schema } = mongoose;
 
-class User {
-  constructor(username, password) {
-    this.username = username;
-    this.password = password;
-  }
+const userSchema = new Schema({
+  username: {
+    type: String,
+    require: true,
+  },
+  password: {
+    type: String,
+    require: true,
+  },
+});
 
-  save() {
-    const db = getDb();
-    db.collection('users')
-      .insertOne(this)
-      .then((result) => console.log('New user created!'))
-      .catch((err) => {
-        throw err;
-      });
-  }
-}
+const User = mongoose.model('User', userSchema);
 
-module.exports = User;
+export default User;
