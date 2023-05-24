@@ -1,13 +1,23 @@
-import { SuccessAlert } from '@/components/alerts';
-import Button from '@/components/button';
+import AlertPopup from '@/components/alert';
+import { Button } from '@material-tailwind/react';
 import Card from '@/components/card';
+import { Color } from '@/types/alert-color';
 import axios from 'axios';
 import { useFormik } from 'formik';
+import { useRouter } from 'next/router';
 import { useState } from 'react';
 import * as Yup from 'yup';
 
 const LoginPage = () => {
-  const [isReqSuccess, setisReqSuccess] = useState(false);
+  const [openAlert, setOpenAlert] = useState(false);
+  const [alert, setAlert] = useState({
+    message: '',
+    description: '',
+    color: '',
+  });
+
+  const router = useRouter();
+
   const SignupSchema = Yup.object().shape({
     email: Yup.string().email('Invalid email').required('Email is required'),
     password: Yup.string()
@@ -22,20 +32,37 @@ const LoginPage = () => {
     },
     validationSchema: SignupSchema,
     onSubmit: async (values: { email: string; password: string }) => {
-      const response = await axios.post(
-        `http://localhost:8080/api/v1/auth/login`,
-        {
-          username: values.email,
-          password: values.password,
+      try {
+        const response = await axios.post(
+          `http://localhost:8080/api/v1/auth/login`,
+          {
+            username: values.email,
+            password: values.password,
+          }
+        );
+        if (response) {
+          setOpenAlert(true);
+          setAlert({
+            message: 'User created successfully!',
+            description:
+              'Congratulations, your account has been successfully created. Thank you for being awesome!',
+            color: 'green',
+          });
         }
-      );
-      if (response.status === 201) setisReqSuccess(true);
+        router.push('/');
+      } catch (error) {
+        console.log(error);
+        setOpenAlert(true);
+        setAlert({
+          message: 'Account creation failed!',
+          description: 'Opps something went wrong, please try again!',
+          color: 'red',
+        });
+      }
+
       formik.resetForm();
     },
   });
-
-  const resetForm = () => {};
-
   return (
     <>
       <div className='h-screen flex items-center justify-center'>
@@ -103,17 +130,21 @@ const LoginPage = () => {
                 ) : null}
               </div>
             </div>
-            <Button className='mx-auto mt-6' type='submit'>
+            <Button
+              className='mt-6 flex w-full justify-center bg-indigo-600'
+              type='submit'
+            >
               Sign in
             </Button>
           </form>
         </Card>
-        {isReqSuccess && (
-          <SuccessAlert
-            message='User created successfully!'
-            description='Congratulations, your account has been successfully created. Thank you for being awesome!'
-          />
-        )}
+        <AlertPopup
+          open={openAlert}
+          setOpen={setOpenAlert}
+          message={alert.message}
+          description={alert.description}
+          color={alert.color as Color}
+        />
       </div>
     </>
   );
