@@ -28,8 +28,10 @@ const AlertPopup = ({
         unmount: { y: 100 },
       }}
     >
-      <div className='font-semibold'>{message}</div>
-      <div className='block'>{description}</div>
+      <div className='text-sm'>
+        <div className='font-semibold '>{message}</div>
+        <span className='block '>{description}</span>
+      </div>
     </Alert>
   );
 };
