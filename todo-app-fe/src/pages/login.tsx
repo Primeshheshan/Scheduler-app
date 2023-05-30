@@ -13,7 +13,7 @@ const LoginPage = () => {
   const [alert, setAlert] = useState({
     message: '',
     description: '',
-    color: '',
+    color: 'red',
   });
 
   const router = useRouter();
@@ -41,15 +41,8 @@ const LoginPage = () => {
           }
         );
         if (response) {
-          setOpenAlert(true);
-          setAlert({
-            message: 'User created successfully!',
-            description:
-              'Congratulations, your account has been successfully created. Thank you for being awesome!',
-            color: 'green',
-          });
+          router.push('/');
         }
-        router.push('/');
       } catch (error) {
         console.log(error);
         setOpenAlert(true);
