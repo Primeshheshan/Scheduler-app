@@ -36,16 +36,18 @@ export default function Home() {
     validationSchema: addNewTaskValidationSchema,
     onSubmit: async ({ title, description }) => {
       try {
-        await axios.post(`http://localhost:8080/api/v1/todo`, {
+        const response = await axios.post(`http://localhost:8080/api/v1/todo`, {
           title,
           description,
         });
-        setOpenAlert(true);
-        setAlert({
-          message: 'Task created successfully!',
-          description: '',
-          color: 'green',
-        });
+        if (response.status === 201) {
+          setOpenAlert(true);
+          setAlert({
+            message: 'Task created successfully!',
+            description: '',
+            color: 'green',
+          });
+        }
       } catch (error) {
         setOpenAlert(true);
         setAlert({
