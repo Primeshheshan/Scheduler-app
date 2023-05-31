@@ -1,7 +1,7 @@
 import AlertPopup from '@/components/alert';
-import Card from '@/components/card';
+import ErrorMessage from '@/components/errorMessage';
 import { Color } from '@/types/alert-color';
-import { Button, Input, Typography } from '@material-tailwind/react';
+import { Button, Card, Input, Typography } from '@material-tailwind/react';
 import axios from 'axios';
 import { useFormik } from 'formik';
 import Link from 'next/link';
@@ -57,10 +57,11 @@ const LoginPage = () => {
       formik.resetForm();
     },
   });
+
   return (
     <>
       <div className='h-screen flex items-center justify-center'>
-        <Card>
+        <Card className='p-6'>
           <Typography
             variant='h4'
             color='blue-gray'
@@ -82,12 +83,7 @@ const LoginPage = () => {
                 error={formik?.errors.email ? true : false}
                 className='focus:ring-0'
               />
-
-              {formik.errors.email ? (
-                <div className='text-xs text-red-500 mt-1 font-normal'>
-                  {formik.errors.email}
-                </div>
-              ) : null}
+              <ErrorMessage message={formik.errors.email} />
             </div>
             <div className='mt-5 sm:mx-auto sm:w-full sm:max-w-sm'>
               <Input
@@ -102,11 +98,7 @@ const LoginPage = () => {
                 error={formik.errors.password ? true : false}
                 className='focus:ring-0'
               />
-              {formik.errors.password ? (
-                <div className='text-xs text-red-500 mt-1 font-normal'>
-                  {formik.errors.password}
-                </div>
-              ) : null}
+              <ErrorMessage message={formik.errors.password} />
               <div className='flex justify-end mt-1'>
                 <div className='text-xs'>
                   <Link
