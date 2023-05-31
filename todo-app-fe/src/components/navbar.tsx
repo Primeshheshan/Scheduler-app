@@ -116,7 +116,7 @@ const NavbarComponent = () => {
           <Button
             size='sm'
             fullWidth
-            className='mb-2 bg-indigo-600'
+            className='mb-2'
             onClick={onLogoutHandler}
           >
             <span>Logout</span>
