@@ -1,5 +1,6 @@
 import AlertPopup from '@/components/alert';
 import ErrorMessage from '@/components/errorMessage';
+import TodoTist from '@/components/todoList';
 import { Color } from '@/types/alert-color';
 import {
   Button,
@@ -74,8 +75,8 @@ export default function Home() {
   }, []);
   return (
     <>
-      <div className='mx-auto max-w-screen-md py-12'>
-        <Card className='mb-12 p-5'>
+      <div className='md:mx-auto max-w-screen-md py-12 mx-2'>
+        <Card className='p-5'>
           <Typography variant='h4' color='blue-gray' className='mb-5'>
             New Todo
           </Typography>
@@ -109,6 +110,10 @@ export default function Home() {
           </form>
         </Card>
       </div>
+      <TodoTist
+        title='Title'
+        description='The w-auto utility can be useful if you need to remove '
+      />
       <AlertPopup
         open={openAlert}
         setOpen={setOpenAlert}
