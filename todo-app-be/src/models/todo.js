@@ -10,6 +10,10 @@ const todoSchema = new Schema({
     type: String,
     require: true,
   },
+  status: {
+    type: String,
+    require: true,
+  },
 });
 
 const Todo = mongoose.model('Todo', todoSchema);
