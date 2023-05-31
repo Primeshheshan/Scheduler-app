@@ -8,6 +8,7 @@ import {
   Textarea,
   Typography,
 } from '@material-tailwind/react';
+import axios from 'axios';
 import { useFormik } from 'formik';
 import { Inter } from 'next/font/google';
 import { useEffect, useState } from 'react';
@@ -33,8 +34,26 @@ export default function Home() {
       description: '',
     },
     validationSchema: addNewTaskValidationSchema,
-    onSubmit: ({ title, description }) => {
-      console.log(title, description);
+    onSubmit: async ({ title, description }) => {
+      try {
+        await axios.post(`http://localhost:8080/api/v1/todo`, {
+          title,
+          description,
+        });
+        setOpenAlert(true);
+        setAlert({
+          message: 'Task created successfully!',
+          description: '',
+          color: 'green',
+        });
+      } catch (error) {
+        setOpenAlert(true);
+        setAlert({
+          message: 'Task creation failed!',
+          description: 'Opps something went wrong, please try again!',
+          color: 'red',
+        });
+      }
       formik.resetForm();
     },
   });
@@ -56,7 +75,7 @@ export default function Home() {
       <div className='mx-auto max-w-screen-md py-12'>
         <Card className='mb-12 p-5'>
           <Typography variant='h4' color='blue-gray' className='mb-5'>
-            Add Task
+            New Todo
           </Typography>
           <form onSubmit={formik.handleSubmit}>
             <div>

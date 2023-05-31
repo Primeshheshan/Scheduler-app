@@ -23,7 +23,7 @@ const AlertPopup = ({
     }, 5000);
 
     return () => clearTimeout(timer);
-  }, [setOpen]);
+  }, [open, setOpen]);
 
   return (
     <Alert
@@ -38,7 +38,7 @@ const AlertPopup = ({
     >
       <div className='text-sm'>
         <div className='font-semibold '>{message}</div>
-        <span className='block'>{description}</span>
+        {description && <span className='block'>{description}</span>}
       </div>
     </Alert>
   );
