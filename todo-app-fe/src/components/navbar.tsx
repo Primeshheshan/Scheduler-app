@@ -8,8 +8,14 @@ import {
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import React from 'react';
+import Badge from './badge';
 
-const NavbarComponent = () => {
+interface INavbarComponent {
+  doneCount: number;
+  inProgressCount: number;
+}
+
+const NavbarComponent = ({ doneCount, inProgressCount }: INavbarComponent) => {
   const [openNav, setOpenNav] = React.useState(false);
   const router = useRouter();
 
@@ -30,8 +36,10 @@ const NavbarComponent = () => {
       >
         <Link href='/inprogress' className='flex items-center'>
           In Progress
+          <Badge count={inProgressCount} />
         </Link>
       </Typography>
+
       <Typography
         as='li'
         variant='small'
@@ -40,6 +48,7 @@ const NavbarComponent = () => {
       >
         <Link href='/completed' className='flex items-center'>
           Completed
+          <Badge count={doneCount} />
         </Link>
       </Typography>
     </ul>

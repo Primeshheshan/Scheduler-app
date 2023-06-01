@@ -11,7 +11,7 @@ const useAlert = () => {
   const [alert, setAlert] = useState<Alert>({
     message: '',
     description: '',
-    color: '',
+    color: 'red',
   });
 
   const showAlert = (message: string, description: string, color: string) => {
