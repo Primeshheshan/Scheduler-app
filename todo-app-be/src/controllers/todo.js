@@ -112,3 +112,18 @@ export const getDoneTodos = async (req, res) => {
     console.log(`An error occurred: ${error}`);
   }
 };
+
+export const getTodoCount = async (req, res) => {
+  try {
+    const inProgressCount = await Todo.countDocuments({
+      status: TodoStatus.IN_PROGRESS,
+    });
+    const doneCount = await Todo.countDocuments({ status: TodoStatus.DONE });
+
+    return res
+      .status(200)
+      .json({ message: 'Success', inProgressCount, doneCount });
+  } catch (error) {
+    console.log(`An error occurred: ${error}`);
+  }
+};

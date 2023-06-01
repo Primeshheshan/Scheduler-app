@@ -6,6 +6,7 @@ import {
   doneTodo,
   getInporgressTodos,
   getDoneTodos,
+  getTodoCount,
 } from '../controllers/todo.js';
 
 const router = express.Router();
@@ -16,5 +17,6 @@ router.delete('/:id', deleteTodo);
 router.put('/:id', doneTodo);
 router.get('/inprogress', getInporgressTodos);
 router.get('/done', getDoneTodos);
+router.get('/count', getTodoCount);
 
 export default router;
