@@ -1,3 +1,4 @@
+import { TodoStatus } from '../enums/todo-status.enum.js';
 import Todo from '../models/todo.js';
 import mongoose from 'mongoose';
 
@@ -18,8 +19,8 @@ export const addTodo = async (req, res) => {
 export const getAllTodos = async (req, res) => {
   try {
     const allTodos = await Todo.find();
-    console.log('Get all Totdos!');
-    return res.json({
+    return res.status(200).json({
+      message: 'All todos fetched successfully',
       allTodos,
     });
   } catch (error) {
@@ -48,6 +49,7 @@ export const deleteTodo = async (req, res) => {
     console.log(`An error occurred: ${error}`);
   }
 };
+
 export const doneTodo = async (req, res) => {
   try {
     const { id } = req.params;
@@ -72,6 +74,40 @@ export const doneTodo = async (req, res) => {
     return res
       .status(200)
       .json({ message: 'Todo status updated successfully', item: updatedItem });
+  } catch (error) {
+    console.log(`An error occurred: ${error}`);
+  }
+};
+
+export const getInporgressTodos = async (req, res) => {
+  try {
+    try {
+      // Find objects with status "InProgress"
+      const inProgressTodos = await Todo.find({
+        status: TodoStatus.IN_PROGRESS,
+      });
+
+      return res.status(200).json({ message: 'Success', inProgressTodos });
+    } catch (error) {
+      return res.status(500).json({ message: 'Server error' });
+    }
+  } catch (error) {
+    console.log(`An error occurred: ${error}`);
+  }
+};
+
+export const getDoneTodos = async (req, res) => {
+  try {
+    try {
+      // Find objects with status "InProgress"
+      const doneTodos = await Todo.find({
+        status: TodoStatus.DONE,
+      });
+
+      return res.status(200).json({ message: 'Success', doneTodos });
+    } catch (error) {
+      return res.status(500).json({ message: 'Server error' });
+    }
   } catch (error) {
     console.log(`An error occurred: ${error}`);
   }
