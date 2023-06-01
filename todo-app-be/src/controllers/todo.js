@@ -36,14 +36,42 @@ export const deleteTodo = async (req, res) => {
       return res.status(400).json({ message: 'Invalid object ID' });
     }
 
-    // Find and delete the item by its ID
+    // Find and delete the Todo by its ID
     const deletedItem = await Todo.findByIdAndDelete(id);
 
     if (!deletedItem) {
-      return res.status(404).json({ message: 'Item not found' });
+      return res.status(404).json({ message: 'Todo not found' });
     }
 
-    return res.status(200).json({ message: 'Item deleted successfully' });
+    return res.status(200).json({ message: 'Todo deleted successfully' });
+  } catch (error) {
+    console.log(`An error occurred: ${error}`);
+  }
+};
+export const doneTodo = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    // Check if the ID is a valid MongoDB ObjectID
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: 'Invalid object ID' });
+    }
+
+    // Find and update the Todo by its ID
+    const updatedItem = await Todo.findByIdAndUpdate(
+      id,
+      { $set: { status } },
+      { new: true }
+    );
+
+    if (!updatedItem) {
+      return res.status(404).json({ message: 'Todo not found' });
+    }
+
+    return res
+      .status(200)
+      .json({ message: 'Todo status updated successfully', item: updatedItem });
   } catch (error) {
     console.log(`An error occurred: ${error}`);
   }
