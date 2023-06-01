@@ -20,7 +20,7 @@ const AlertPopup = ({
   useEffect(() => {
     const timer = setTimeout(() => {
       setOpen(false);
-    }, 5000);
+    }, 3000);
 
     return () => clearTimeout(timer);
   }, [open, setOpen]);

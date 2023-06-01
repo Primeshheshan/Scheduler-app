@@ -1,6 +1,8 @@
 import AlertPopup from '@/components/alert';
 import ErrorMessage from '@/components/errorMessage';
 import TodoTist from '@/components/todoList';
+import { TodoStatus } from '@/enums/todo.enums';
+import useFetchTodos from '@/hooks/fetch-todos.hook';
 import { Color } from '@/types/alert-color';
 import {
   Button,
@@ -16,18 +18,47 @@ import { useEffect, useState } from 'react';
 import * as Yup from 'yup';
 
 const inter = Inter({ subsets: ['latin'] });
+interface ITodoObject {
+  _id: string;
+  title: string;
+  description: string;
+  __v: number;
+  status: string;
+}
 
 export default function Home() {
   const [openAlert, setOpenAlert] = useState(false);
+  const [todosArray, setTodos] = useState<ITodoObject[]>([]);
   const [alert, setAlert] = useState({
     message: '',
     description: '',
     color: 'red',
   });
+  const { todos, error, fetchTodos } = useFetchTodos();
 
   const addNewTaskValidationSchema = Yup.object().shape({
     title: Yup.string().required('Title is required'),
   });
+
+  useEffect(() => {
+    setTodos(todos);
+    if (error) {
+      showAlert(
+        'Task fetching failed!',
+        'Opps something went wrong, please try again!',
+        'red'
+      );
+    }
+
+    if (!localStorage.getItem('isLoggedIn')) {
+      localStorage.setItem('isLoggedIn', 'true');
+      showAlert(
+        'User created successfully!',
+        'Congratulations, your account has been successfully created. Thank you for being awesome!',
+        'green'
+      );
+    }
+  }, [error, todos]);
 
   const formik = useFormik({
     initialValues: {
@@ -37,42 +68,77 @@ export default function Home() {
     validationSchema: addNewTaskValidationSchema,
     onSubmit: async ({ title, description }) => {
       try {
-        const response = await axios.post(`http://localhost:8080/api/v1/todo`, {
-          title,
-          description,
-        });
-        if (response.status === 201) {
-          setOpenAlert(true);
-          setAlert({
-            message: 'Task created successfully!',
-            description: '',
-            color: 'green',
-          });
-        }
+        await addTodo(title, description);
       } catch (error) {
-        setOpenAlert(true);
-        setAlert({
-          message: 'Task creation failed!',
-          description: 'Opps something went wrong, please try again!',
-          color: 'red',
-        });
+        showAlert(
+          'Task creation failed!',
+          'Opps something went wrong, please try again!',
+          'red'
+        );
       }
       formik.resetForm();
     },
   });
 
-  useEffect(() => {
-    if (!localStorage.getItem('isLoggedIn')) {
-      localStorage.setItem('isLoggedIn', 'true');
-      setOpenAlert(true);
-      setAlert({
-        message: 'User created successfully!',
-        description:
-          'Congratulations, your account has been successfully created. Thank you for being awesome!',
-        color: 'green',
-      });
+  const addTodo = async (title: string, description: string) => {
+    const response = await axios.post('http://localhost:8080/api/v1/todo', {
+      title,
+      description,
+      status: TodoStatus.IN_PROGRESS,
+    });
+    if (response.status === 201) {
+      showAlert('Task created successfully!', '', 'green');
     }
-  }, []);
+    await fetchTodos();
+    if (error) throw error;
+  };
+
+  const handleDeleteTodo = async (id: string) => {
+    try {
+      const response = await axios.delete(
+        `http://localhost:8080/api/v1/todo/${id}`
+      );
+      if (response.status === 200) {
+        await fetchTodos();
+      }
+    } catch (error) {
+      showAlert(
+        'Task deleting failed!',
+        'Opps something went wrong, please try again!',
+        'red'
+      );
+    }
+  };
+
+  const handleDoneTodo = async (id: string) => {
+    try {
+      const response = await axios.put(
+        `http://localhost:8080/api/v1/todo/${id}`,
+        {
+          status: TodoStatus.DONE,
+        }
+      );
+      if (response.status === 200) {
+        await fetchTodos();
+      }
+    } catch (error) {
+      showAlert(
+        'Task status change failed!',
+        'Opps something went wrong, please try again!',
+        'red'
+      );
+    }
+  };
+
+  const showAlert = (message: string, description: string, color: string) => {
+    setOpenAlert(true);
+    setAlert({
+      message,
+      description,
+      color,
+    });
+  };
+
   return (
     <>
       <div className='md:mx-auto max-w-screen-md py-12 mx-2'>
@@ -110,10 +176,28 @@ export default function Home() {
           </form>
         </Card>
       </div>
-      <TodoTist
-        title='Title'
-        description='The w-auto utility can be useful if you need to remove '
-      />
+      {todosArray.length ? (
+        todosArray.map((todo) => (
+          <TodoTist
+            key={todo._id}
+            id={todo._id}
+            title={todo.title}
+            description={todo.description}
+            status={todo.status}
+            onDeleteHandler={handleDeleteTodo}
+            onDoneHandler={handleDoneTodo}
+          />
+        ))
+      ) : (
+        <Typography
+          variant='lead'
+          color='blue-gray'
+          className='mb-5 text-center'
+        >
+          No Todos
+        </Typography>
+      )}
+
       <AlertPopup
         open={openAlert}
         setOpen={setOpenAlert}
