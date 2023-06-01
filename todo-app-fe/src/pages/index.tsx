@@ -2,8 +2,11 @@ import AlertPopup from '@/components/alert';
 import ErrorMessage from '@/components/errorMessage';
 import TodoTist from '@/components/todoList';
 import { TodoStatus } from '@/enums/todo.enums';
+import useAlert from '@/hooks/alert.hook';
+import useDeleteTodo from '@/hooks/delete-todo.hook';
 import useFetchTodos from '@/hooks/fetch-todos.hook';
 import { Color } from '@/types/alert-color';
+import { ITodoObject } from '@/types/todo-object';
 import {
   Button,
   Card,
@@ -18,27 +21,28 @@ import { useEffect, useState } from 'react';
 import * as Yup from 'yup';
 
 const inter = Inter({ subsets: ['latin'] });
-interface ITodoObject {
-  _id: string;
-  title: string;
-  description: string;
-  __v: number;
-  status: string;
-}
 
 export default function Home() {
-  const [openAlert, setOpenAlert] = useState(false);
   const [todosArray, setTodos] = useState<ITodoObject[]>([]);
-  const [alert, setAlert] = useState({
-    message: '',
-    description: '',
-    color: 'red',
-  });
+  const { openAlert, alert, showAlert, setOpenAlert } = useAlert();
+
   const { todos, error, fetchTodos } = useFetchTodos();
+  const { deleteTodo } = useDeleteTodo();
 
   const addNewTaskValidationSchema = Yup.object().shape({
     title: Yup.string().required('Title is required'),
   });
+
+  useEffect(() => {
+    if (!localStorage.getItem('isLoggedIn')) {
+      localStorage.setItem('isLoggedIn', 'true');
+      showAlert(
+        'User created successfully!',
+        'Congratulations, your account has been successfully created. Thank you for being awesome!',
+        'green'
+      );
+    }
+  }, []);
 
   useEffect(() => {
     setTodos(todos);
@@ -49,16 +53,7 @@ export default function Home() {
         'red'
       );
     }
-
-    if (!localStorage.getItem('isLoggedIn')) {
-      localStorage.setItem('isLoggedIn', 'true');
-      showAlert(
-        'User created successfully!',
-        'Congratulations, your account has been successfully created. Thank you for being awesome!',
-        'green'
-      );
-    }
-  }, [error, todos]);
+  }, [error, showAlert, todos]);
 
   const formik = useFormik({
     initialValues: {
@@ -95,12 +90,8 @@ export default function Home() {
 
   const handleDeleteTodo = async (id: string) => {
     try {
-      const response = await axios.delete(
-        `http://localhost:8080/api/v1/todo/${id}`
-      );
-      if (response.status === 200) {
-        await fetchTodos();
-      }
+      await deleteTodo(id);
+      await fetchTodos();
     } catch (error) {
       showAlert(
         'Task deleting failed!',
@@ -128,15 +119,6 @@ export default function Home() {
         'red'
       );
     }
-  };
-
-  const showAlert = (message: string, description: string, color: string) => {
-    setOpenAlert(true);
-    setAlert({
-      message,
-      description,
-      color,
-    });
   };
 
   return (

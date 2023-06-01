@@ -14,8 +14,8 @@ interface ITodoTist {
   title: string;
   description: string;
   status: string;
-  onDoneHandler: (id: string) => {};
-  onDeleteHandler: (id: string) => {};
+  onDoneHandler: (id: string) => void;
+  onDeleteHandler: (id: string) => void;
 }
 
 const TodoTist = ({
