@@ -38,11 +38,11 @@ const Completed = () => {
 
   return (
     <>
-      {' '}
-      {todosArray?.length ? (
-        todosArray.map((todo) => (
-          <div key={todo._id} className='py-12'>
+      <div className='pt-12'>
+        {todosArray?.length ? (
+          todosArray.map((todo) => (
             <TodoTist
+              key={todo._id}
               id={todo._id}
               title={todo.title}
               description={todo.description}
@@ -50,17 +50,18 @@ const Completed = () => {
               onDeleteHandler={handleDeleteTodo}
               onDoneHandler={() => {}}
             />
-          </div>
-        ))
-      ) : (
-        <Typography
-          variant='lead'
-          color='blue-gray'
-          className='mb-5 text-center'
-        >
-          No Done Todos
-        </Typography>
-      )}
+          ))
+        ) : (
+          <Typography
+            variant='lead'
+            color='blue-gray'
+            className='mb-5 text-center'
+          >
+            No Done Todos
+          </Typography>
+        )}
+      </div>
+
       <AlertPopup
         open={openAlert}
         setOpen={setOpenAlert}

@@ -4,6 +4,7 @@ import TodoTist from '@/components/todoList';
 import { TodoStatus } from '@/enums/todo.enums';
 import useAlert from '@/hooks/alert.hook';
 import useDeleteTodo from '@/hooks/delete-todo.hook';
+import useDoneTodo from '@/hooks/done-todo.hook';
 import useFetchTodos from '@/hooks/fetch-todos.hook';
 import { Color } from '@/types/alert-color';
 import { ITodoObject } from '@/types/todo-object';
@@ -24,10 +25,11 @@ const inter = Inter({ subsets: ['latin'] });
 
 export default function Home() {
   const [todosArray, setTodos] = useState<ITodoObject[]>([]);
-  const { openAlert, alert, showAlert, setOpenAlert } = useAlert();
 
+  const { openAlert, alert, showAlert, setOpenAlert } = useAlert();
   const { todos, error, fetchTodos } = useFetchTodos();
   const { deleteTodo } = useDeleteTodo();
+  const { doneTodo } = useDoneTodo();
 
   const addNewTaskValidationSchema = Yup.object().shape({
     title: Yup.string().required('Title is required'),
@@ -42,7 +44,7 @@ export default function Home() {
         'green'
       );
     }
-  }, []);
+  }, [showAlert]);
 
   useEffect(() => {
     setTodos(todos);
@@ -103,15 +105,8 @@ export default function Home() {
 
   const handleDoneTodo = async (id: string) => {
     try {
-      const response = await axios.put(
-        `http://localhost:8080/api/v1/todo/${id}`,
-        {
-          status: TodoStatus.DONE,
-        }
-      );
-      if (response.status === 200) {
-        await fetchTodos();
-      }
+      await doneTodo(id);
+      await fetchTodos();
     } catch (error) {
       showAlert(
         'Task status change failed!',

@@ -40,12 +40,10 @@ const TodoTist = ({
               <XMarkIcon className='h-5 w-5 text-red-500' />
             </IconButton>
           </div>
-          <div className='mt-4'>
-            <Typography variant='h6' color='blue-gray'>
-              {title}
-            </Typography>
-            <Typography className='mt-2'>{description}</Typography>
-          </div>
+          <Typography variant='h6' color='blue-gray'>
+            {title}
+          </Typography>
+          <Typography className='mt-2'>{description}</Typography>
           <div className='flex justify-between items-center mt-2'>
             <Chip
               value={status ?? ''}
