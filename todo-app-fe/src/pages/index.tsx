@@ -132,10 +132,15 @@ export default function Home() {
       );
     }
   };
-
+  //
   return (
     <>
       <div className='md:mx-auto max-w-screen-md py-12 mx-2'>
+        <div className='relative q-full max-q-lg top-72'>
+          <div className='absolute top-0 -left-2 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob'></div>
+          <div className='absolute top-0 right-64 w-72 h-72 bg-yellow-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000'></div>
+          <div className='absolute top-20 left-20 w-72 h-72 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000'></div>
+        </div>
         <Card className='p-5'>
           <Typography variant='h4' color='blue-gray' className='mb-5'>
             New Todo
