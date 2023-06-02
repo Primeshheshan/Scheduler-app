@@ -36,9 +36,11 @@ const NavbarComponent = () => {
         as='li'
         variant='small'
         color='blue-gray'
-        className='p-1 font-semibold'
+        className={`p-1 font-semibold  ${
+          router.asPath === '/inprogress' ? 'border-b-2 border-gray-500' : null
+        }`}
       >
-        <Link href='/inprogress' className='flex items-center'>
+        <Link href='/inprogress' className={`flex items-center `}>
           In Progress
           <Badge count={inProgressCount} />
         </Link>
@@ -48,7 +50,9 @@ const NavbarComponent = () => {
         as='li'
         variant='small'
         color='blue-gray'
-        className='p-1 font-semibold'
+        className={`p-1 font-semibold  ${
+          router.asPath === '/completed' ? 'border-b-2 border-gray-500' : null
+        }`}
       >
         <Link href='/completed' className='flex items-center'>
           Completed
@@ -72,7 +76,12 @@ const NavbarComponent = () => {
             color='blue-gray'
             className='mr-4 cursor-pointer py-1.5 font-semibold'
           >
-            <Link href='/' className='flex items-center'>
+            <Link
+              href='/'
+              className={`flex items-center ${
+                router.asPath === '/' ? 'border-b-2 border-gray-500' : null
+              }`}
+            >
               Todo
             </Link>
           </Typography>
