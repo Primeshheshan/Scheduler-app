@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
-import { Alert, Button } from '@material-tailwind/react';
 import { Color } from '@/types/alert-color';
+import { Alert } from '@material-tailwind/react';
+import { useEffect } from 'react';
 
 interface IAlertPopupProps {
   message: string;
@@ -17,9 +17,17 @@ const AlertPopup = ({
   description,
   color,
 }: IAlertPopupProps) => {
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setOpen(false);
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, [open, setOpen]);
+
   return (
     <Alert
-      className='absolute w-fit bottom-2.5 right-2.5'
+      className='fixed w-fit bottom-2.5 right-2.5'
       open={open}
       onClose={() => setOpen(false)}
       color={color}
@@ -30,7 +38,7 @@ const AlertPopup = ({
     >
       <div className='text-sm'>
         <div className='font-semibold '>{message}</div>
-        <span className='block '>{description}</span>
+        {description && <span className='block'>{description}</span>}
       </div>
     </Alert>
   );

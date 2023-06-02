@@ -1,7 +1,209 @@
+import AlertPopup from '@/components/alert';
+import ErrorMessage from '@/components/errorMessage';
+import TodoTist from '@/components/todoList';
+import { TodoStatus } from '@/enums/todo.enums';
+import useAlert from '@/hooks/alert.hook';
+import useDeleteTodo from '@/hooks/delete-todo.hook';
+import useDoneTodo from '@/hooks/done-todo.hook';
+import useFetchTodos from '@/hooks/fetch-todos.hook';
+import {
+  decrementDoneCount,
+  decrementImporgressCount,
+  incrementDoneCount,
+  incrementImporgressCount,
+} from '@/redux/todoCount.slice';
+import { Color } from '@/types/alert-color';
+import { ITodoObject } from '@/types/todo-object';
+import {
+  Button,
+  Card,
+  Input,
+  Textarea,
+  Typography,
+} from '@material-tailwind/react';
+import axios from 'axios';
+import { useFormik } from 'formik';
 import { Inter } from 'next/font/google';
+import { useEffect, useState } from 'react';
+import { useDispatch } from 'react-redux';
+import * as Yup from 'yup';
 
 const inter = Inter({ subsets: ['latin'] });
 
 export default function Home() {
-  return <div>home</div>;
+  const [todosArray, setTodos] = useState<ITodoObject[]>([]);
+
+  const dispatch = useDispatch();
+
+  const { openAlert, alert, showAlert, setOpenAlert } = useAlert();
+  const { todos, error, fetchTodos } = useFetchTodos();
+  const { deleteTodo } = useDeleteTodo();
+  const { doneTodo } = useDoneTodo();
+
+  const addNewTaskValidationSchema = Yup.object().shape({
+    title: Yup.string().required('Title is required'),
+  });
+
+  useEffect(() => {
+    if (!localStorage.getItem('isLoggedIn')) {
+      localStorage.setItem('isLoggedIn', 'true');
+      showAlert(
+        'User created successfully!',
+        'Congratulations, your account has been successfully created. Thank you for being awesome!',
+        'green'
+      );
+    }
+  }, [showAlert]);
+
+  useEffect(() => {
+    setTodos(todos);
+    if (error) {
+      showAlert(
+        'Task fetching failed!',
+        'Opps something went wrong, please try again!',
+        'red'
+      );
+    }
+  }, [error, showAlert, todos]);
+
+  const formik = useFormik({
+    initialValues: {
+      title: '',
+      description: '',
+    },
+    validationSchema: addNewTaskValidationSchema,
+    onSubmit: async ({ title, description }) => {
+      try {
+        await addTodo(title, description);
+        dispatch(incrementImporgressCount());
+      } catch (error) {
+        showAlert(
+          'Task creation failed!',
+          'Opps something went wrong, please try again!',
+          'red'
+        );
+      }
+      formik.resetForm();
+    },
+  });
+
+  const addTodo = async (title: string, description: string) => {
+    const response = await axios.post('http://localhost:8080/api/v1/todo', {
+      title,
+      description,
+      status: TodoStatus.IN_PROGRESS,
+    });
+    if (response.status === 201) {
+      showAlert('Task created successfully!', '', 'green');
+    }
+    await fetchTodos();
+    if (error) throw error;
+  };
+
+  const handleDeleteTodo = async (id: string, status: string) => {
+    try {
+      await deleteTodo(id);
+      await fetchTodos();
+      if (status === TodoStatus.IN_PROGRESS) {
+        dispatch(decrementImporgressCount());
+      } else {
+        dispatch(decrementDoneCount());
+      }
+    } catch (error) {
+      showAlert(
+        'Task deleting failed!',
+        'Opps something went wrong, please try again!',
+        'red'
+      );
+    }
+  };
+
+  const handleDoneTodo = async (id: string) => {
+    try {
+      await doneTodo(id);
+      await fetchTodos();
+      dispatch(decrementImporgressCount());
+      dispatch(incrementDoneCount());
+    } catch (error) {
+      showAlert(
+        'Task status change failed!',
+        'Opps something went wrong, please try again!',
+        'red'
+      );
+    }
+  };
+  //
+  return (
+    <>
+      <div className='md:mx-auto max-w-screen-md py-12 mx-2'>
+        <div className='relative q-full max-q-lg top-72'>
+          <div className='absolute top-0 -left-2 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob'></div>
+          <div className='absolute top-0 right-64 w-72 h-72 bg-yellow-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000'></div>
+          <div className='absolute top-20 left-20 w-72 h-72 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000'></div>
+        </div>
+        <Card className='p-5'>
+          <Typography variant='h4' color='blue-gray' className='mb-5'>
+            New Todo
+          </Typography>
+          <form onSubmit={formik.handleSubmit}>
+            <div>
+              <Input
+                id='title'
+                name='title'
+                label='Title'
+                required
+                onChange={formik.handleChange}
+                value={formik.values.title}
+                error={formik.errors.title ? true : false}
+              />
+              <ErrorMessage message={formik.errors.title} />
+            </div>
+            <Textarea
+              id='description'
+              className='focus:ring-0'
+              label='Description'
+              containerProps={{ className: 'mt-3' }}
+              onChange={formik.handleChange}
+              value={formik.values.description}
+              error={formik.errors.description ? true : false}
+            />
+            <div className='flex justify-center'>
+              <Button className='mt-3 w-80' type='submit'>
+                Add
+              </Button>
+            </div>
+          </form>
+        </Card>
+      </div>
+      {todosArray.length ? (
+        todosArray.map((todo) => (
+          <TodoTist
+            key={todo._id}
+            id={todo._id}
+            title={todo.title}
+            description={todo.description}
+            status={todo.status}
+            onDeleteHandler={handleDeleteTodo}
+            onDoneHandler={handleDoneTodo}
+          />
+        ))
+      ) : (
+        <Typography
+          variant='lead'
+          color='blue-gray'
+          className='mb-5 text-center'
+        >
+          No Todos
+        </Typography>
+      )}
+
+      <AlertPopup
+        open={openAlert}
+        setOpen={setOpenAlert}
+        message={alert.message}
+        description={alert.description}
+        color={alert.color as Color}
+      />
+    </>
+  );
 }
