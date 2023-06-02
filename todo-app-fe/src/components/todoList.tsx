@@ -15,7 +15,7 @@ interface ITodoTist {
   description: string;
   status: string;
   onDoneHandler: (id: string) => void;
-  onDeleteHandler: (id: string) => void;
+  onDeleteHandler: (id: string, status: string) => void;
 }
 
 const TodoTist = ({
@@ -35,7 +35,7 @@ const TodoTist = ({
               variant='text'
               size='sm'
               color='red'
-              onClick={() => onDeleteHandler(id)}
+              onClick={() => onDeleteHandler(id, status)}
             >
               <XMarkIcon className='h-5 w-5 text-red-500' />
             </IconButton>

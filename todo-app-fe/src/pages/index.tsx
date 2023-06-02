@@ -6,6 +6,12 @@ import useAlert from '@/hooks/alert.hook';
 import useDeleteTodo from '@/hooks/delete-todo.hook';
 import useDoneTodo from '@/hooks/done-todo.hook';
 import useFetchTodos from '@/hooks/fetch-todos.hook';
+import {
+  decrementDoneCount,
+  decrementImporgressCount,
+  incrementDoneCount,
+  incrementImporgressCount,
+} from '@/redux/todoCount.slice';
 import { Color } from '@/types/alert-color';
 import { ITodoObject } from '@/types/todo-object';
 import {
@@ -19,12 +25,15 @@ import axios from 'axios';
 import { useFormik } from 'formik';
 import { Inter } from 'next/font/google';
 import { useEffect, useState } from 'react';
+import { useDispatch } from 'react-redux';
 import * as Yup from 'yup';
 
 const inter = Inter({ subsets: ['latin'] });
 
 export default function Home() {
   const [todosArray, setTodos] = useState<ITodoObject[]>([]);
+
+  const dispatch = useDispatch();
 
   const { openAlert, alert, showAlert, setOpenAlert } = useAlert();
   const { todos, error, fetchTodos } = useFetchTodos();
@@ -66,6 +75,7 @@ export default function Home() {
     onSubmit: async ({ title, description }) => {
       try {
         await addTodo(title, description);
+        dispatch(incrementImporgressCount());
       } catch (error) {
         showAlert(
           'Task creation failed!',
@@ -90,10 +100,15 @@ export default function Home() {
     if (error) throw error;
   };
 
-  const handleDeleteTodo = async (id: string) => {
+  const handleDeleteTodo = async (id: string, status: string) => {
     try {
       await deleteTodo(id);
       await fetchTodos();
+      if (status === TodoStatus.IN_PROGRESS) {
+        dispatch(decrementImporgressCount());
+      } else {
+        dispatch(decrementDoneCount());
+      }
     } catch (error) {
       showAlert(
         'Task deleting failed!',
@@ -107,6 +122,8 @@ export default function Home() {
     try {
       await doneTodo(id);
       await fetchTodos();
+      dispatch(decrementImporgressCount());
+      dispatch(incrementDoneCount());
     } catch (error) {
       showAlert(
         'Task status change failed!',

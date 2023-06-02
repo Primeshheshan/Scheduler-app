@@ -9,15 +9,19 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import React from 'react';
 import Badge from './badge';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/redux';
 
-interface INavbarComponent {
-  doneCount: number;
-  inProgressCount: number;
-}
-
-const NavbarComponent = ({ doneCount, inProgressCount }: INavbarComponent) => {
+const NavbarComponent = () => {
   const [openNav, setOpenNav] = React.useState(false);
   const router = useRouter();
+
+  const inProgressCount = useSelector(
+    (state: RootState) => state.todoStore.inProgressCount
+  );
+  const doneCount = useSelector(
+    (state: RootState) => state.todoStore.doneCount
+  );
 
   React.useEffect(() => {
     window.addEventListener(
