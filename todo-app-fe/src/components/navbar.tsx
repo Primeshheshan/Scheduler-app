@@ -80,7 +80,7 @@ const NavbarComponent = () => {
             <div className='mr-4 hidden lg:block'>{navList}</div>
             <Button
               size='sm'
-              className='hidden lg:inline-block bg-indigo-600'
+              className='hidden lg:inline-block'
               onClick={onLogoutHandler}
             >
               <span>Logout</span>
