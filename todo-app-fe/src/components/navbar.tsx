@@ -36,7 +36,7 @@ const NavbarComponent = () => {
         as='li'
         variant='small'
         color='blue-gray'
-        className={`p-1 font-semibold  ${
+        className={`p-2 font-semibold hover:bg-gray-200 rounded-sm ${
           router.asPath === '/inprogress' ? 'border-b-2 border-gray-500' : null
         }`}
       >
@@ -50,7 +50,7 @@ const NavbarComponent = () => {
         as='li'
         variant='small'
         color='blue-gray'
-        className={`p-1 font-semibold  ${
+        className={`p-2 font-semibold hover:bg-gray-200 rounded-sm ${
           router.asPath === '/completed' ? 'border-b-2 border-gray-500' : null
         }`}
       >

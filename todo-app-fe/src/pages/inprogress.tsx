@@ -3,11 +3,16 @@ import TodoTist from '@/components/todoList';
 import useAlert from '@/hooks/alert.hook';
 import useDeleteTodo from '@/hooks/delete-todo.hook';
 import useDoneTodo from '@/hooks/done-todo.hook';
+import {
+  decrementImporgressCount,
+  incrementDoneCount,
+} from '@/redux/todoCount.slice';
 import { Color } from '@/types/alert-color';
 import { ITodoObject } from '@/types/todo-object';
 import { Typography } from '@material-tailwind/react';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
+import { useDispatch } from 'react-redux';
 
 const InProgress = () => {
   const [todosArray, setTodos] = useState<ITodoObject[]>([]);
@@ -15,6 +20,8 @@ const InProgress = () => {
   const { doneTodo } = useDoneTodo();
   const { deleteTodo } = useDeleteTodo();
   const { openAlert, alert, showAlert, setOpenAlert } = useAlert();
+
+  const dispatch = useDispatch();
 
   useEffect(() => {
     fetchInprogressTodos();
@@ -31,6 +38,7 @@ const InProgress = () => {
   const handleDeleteTodo = async (id: string) => {
     try {
       await deleteTodo(id);
+      dispatch(decrementImporgressCount());
       await fetchInprogressTodos();
     } catch (error) {
       showAlert(
@@ -44,6 +52,8 @@ const InProgress = () => {
   const handleDoneTodo = async (id: string) => {
     try {
       await doneTodo(id);
+      dispatch(decrementImporgressCount());
+      dispatch(incrementDoneCount());
       await fetchInprogressTodos();
     } catch (error) {
       showAlert(
