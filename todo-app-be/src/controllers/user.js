@@ -9,6 +9,6 @@ export const addUser = async (req, res) => {
     console.log('A user created!');
     res.sendStatus(201);
   } catch (error) {
-    console.log(`An error occurred! ${error}`);
+    console.log(`An error occurred: ${error}`);
   }
 };

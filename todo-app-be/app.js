@@ -3,6 +3,7 @@ import * as dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import bodyParser from 'body-parser';
 import userRoutes from './src/routes/user.js';
+import todoRoutes from './src/routes/todo.js';
 import cors from 'cors';
 
 const app = express();
@@ -14,6 +15,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 app.use('/api/v1/auth', userRoutes);
+app.use('/api/v1/todo', todoRoutes);
 
 app.use((error, req, res, next) => {
   res.status(500).json({ message: error.message });

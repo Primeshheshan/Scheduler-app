@@ -8,10 +8,20 @@ import {
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import React from 'react';
+import Badge from './badge';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/redux';
 
 const NavbarComponent = () => {
   const [openNav, setOpenNav] = React.useState(false);
   const router = useRouter();
+
+  const inProgressCount = useSelector(
+    (state: RootState) => state.todoStore.inProgressCount
+  );
+  const doneCount = useSelector(
+    (state: RootState) => state.todoStore.doneCount
+  );
 
   React.useEffect(() => {
     window.addEventListener(
@@ -26,20 +36,27 @@ const NavbarComponent = () => {
         as='li'
         variant='small'
         color='blue-gray'
-        className='p-1 font-semibold'
+        className={`p-1 font-semibold  ${
+          router.asPath === '/inprogress' ? 'border-b-2 border-gray-500' : null
+        }`}
       >
-        <Link href='/inprogress' className='flex items-center'>
+        <Link href='/inprogress' className={`flex items-center `}>
           In Progress
+          <Badge count={inProgressCount} />
         </Link>
       </Typography>
+
       <Typography
         as='li'
         variant='small'
         color='blue-gray'
-        className='p-1 font-semibold'
+        className={`p-1 font-semibold  ${
+          router.asPath === '/completed' ? 'border-b-2 border-gray-500' : null
+        }`}
       >
         <Link href='/completed' className='flex items-center'>
           Completed
+          <Badge count={doneCount} />
         </Link>
       </Typography>
     </ul>
@@ -59,7 +76,12 @@ const NavbarComponent = () => {
             color='blue-gray'
             className='mr-4 cursor-pointer py-1.5 font-semibold'
           >
-            <Link href='/' className='flex items-center'>
+            <Link
+              href='/'
+              className={`flex items-center ${
+                router.asPath === '/' ? 'border-b-2 border-gray-500' : null
+              }`}
+            >
               Todo
             </Link>
           </Typography>
@@ -67,7 +89,7 @@ const NavbarComponent = () => {
             <div className='mr-4 hidden lg:block'>{navList}</div>
             <Button
               size='sm'
-              className='hidden lg:inline-block bg-indigo-600'
+              className='hidden lg:inline-block'
               onClick={onLogoutHandler}
             >
               <span>Logout</span>
