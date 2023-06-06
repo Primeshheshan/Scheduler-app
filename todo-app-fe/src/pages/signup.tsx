@@ -2,19 +2,24 @@ import AlertPopup from '@/components/alert';
 import ErrorMessage from '@/components/errorMessage';
 import useAlert from '@/hooks/alert.hook';
 import { Color } from '@/types/alert-color';
-import { Button, Card, Input, Typography } from '@material-tailwind/react';
-import axios from 'axios';
+import {
+  Card,
+  Input,
+  Checkbox,
+  Button,
+  Typography,
+} from '@material-tailwind/react';
 import { useFormik } from 'formik';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import * as Yup from 'yup';
 
-const LoginPage = () => {
+const SingUpPage = () => {
+  const router = useRouter();
   const { openAlert, alert, showAlert, setOpenAlert } = useAlert();
 
-  const router = useRouter();
-
   const SignupSchema = Yup.object().shape({
+    name: Yup.string().required('Name is required'),
     email: Yup.string().email('Invalid email').required('Email is required'),
     password: Yup.string()
       .required('Password is required')
@@ -23,26 +28,22 @@ const LoginPage = () => {
 
   const formik = useFormik({
     initialValues: {
+      name: '',
       email: '',
       password: '',
     },
     validationSchema: SignupSchema,
-    onSubmit: async (values: { email: string; password: string }) => {
+    onSubmit: async (values: {
+      name: string;
+      email: string;
+      password: string;
+    }) => {
       try {
-        const response = await axios.post(
-          `http://localhost:8080/api/v1/auth/login`,
-          {
-            username: values.email,
-            password: values.password,
-          }
-        );
-        if (response.status === 201) {
-          localStorage.setItem('isLoggedIn', 'true');
-          router.push('/');
-        }
+        console.log(values);
+        // router.push('/');
       } catch (error) {
         showAlert(
-          'Login failed!',
+          'Account creation failed!',
           'Opps something went wrong, please try again!',
           'red'
         );
@@ -57,10 +58,10 @@ const LoginPage = () => {
       <div className='flex justify-center my-16'>
         <Card className='p-6'>
           <Typography variant='h4' color='blue-gray'>
-            Sign In
+            Sign Up
           </Typography>
           <Typography color='gray' className='mt-1 font-normal'>
-            Enter your credentials to register.
+            Enter your details to register.
           </Typography>
           <form
             onSubmit={formik.handleSubmit}
@@ -69,12 +70,22 @@ const LoginPage = () => {
             <div className='mb-4 flex flex-col gap-6'>
               <div>
                 <Input
+                  id='name'
+                  size='lg'
+                  label='Name'
+                  onChange={formik.handleChange}
+                  value={formik.values.name}
+                  error={formik?.errors.name ? true : false}
+                  className='focus:ring-0'
+                />
+                <ErrorMessage message={formik.errors.name} />
+              </div>
+
+              <div>
+                <Input
                   id='email'
-                  type='email'
                   size='lg'
                   label='Email'
-                  required
-                  name='email'
                   onChange={formik.handleChange}
                   value={formik.values.email}
                   error={formik?.errors.email ? true : false}
@@ -82,46 +93,54 @@ const LoginPage = () => {
                 />
                 <ErrorMessage message={formik.errors.email} />
               </div>
+
               <div>
                 <Input
                   id='password'
                   type='password'
                   size='lg'
                   label='Password'
-                  required
-                  name='password'
                   onChange={formik.handleChange}
                   value={formik.values.password}
                   error={formik.errors.password ? true : false}
                   className='focus:ring-0'
                 />
                 <ErrorMessage message={formik.errors.password} />
-                <div className='flex justify-end mt-1'>
-                  <div className='text-xs'>
-                    <Link
-                      href='/forgot-password'
-                      className='font-medium text-sm text-blue-500 transition-colors hover:text-blue-700'
-                    >
-                      Forgot password?
-                    </Link>
-                  </div>
-                </div>
               </div>
             </div>
 
-            <Button className='mt-6 flex w-full justify-center' type='submit'>
-              Sign in
+            <Checkbox
+              className='focus:ring-0'
+              label={
+                <Typography
+                  variant='small'
+                  color='gray'
+                  className='flex items-center font-normal'
+                >
+                  I agree the
+                  <a
+                    href='#'
+                    className='font-medium transition-colors hover:text-blue-500'
+                  >
+                    &nbsp;Terms and Conditions
+                  </a>
+                </Typography>
+              }
+              containerProps={{ className: '-ml-2.5' }}
+            />
+            <Button className='mt-6' fullWidth type='submit'>
+              Register
             </Button>
+            <Typography color='gray' className='mt-4 text-center font-normal'>
+              Already have an account?{' '}
+              <Link
+                href='/login'
+                className='font-medium text-blue-500 transition-colors hover:text-blue-700'
+              >
+                Sign In
+              </Link>
+            </Typography>
           </form>
-          <Typography color='gray' className='mt-4 text-center font-normal'>
-            Sign Up for free{' '}
-            <Link
-              href='/signup'
-              className='font-medium text-blue-500 transition-colors hover:text-blue-700'
-            >
-              Sign Up
-            </Link>
-          </Typography>
         </Card>
       </div>
       <AlertPopup
@@ -134,4 +153,5 @@ const LoginPage = () => {
     </>
   );
 };
-export default LoginPage;
+
+export default SingUpPage;
