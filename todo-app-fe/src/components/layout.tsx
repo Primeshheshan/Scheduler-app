@@ -23,7 +23,6 @@ export default function Layout({ children }: ILayout) {
       const { doneCount, inProgressCount } = response.data;
       dispatch(incrementInprogressByAmount(inProgressCount));
       dispatch(incrementDoneByAmount(doneCount));
-      console.log(doneCount);
     } catch (error) {
       console.log(error);
     }

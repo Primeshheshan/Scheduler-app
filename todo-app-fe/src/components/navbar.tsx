@@ -7,13 +7,14 @@ import {
 } from '@material-tailwind/react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Badge from './badge';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux';
+import SpeedDialComponent from './speed-dial';
 
 const NavbarComponent = () => {
-  const [openNav, setOpenNav] = React.useState(false);
+  const [openNav, setOpenNav] = useState(false);
   const router = useRouter();
 
   const inProgressCount = useSelector(
@@ -23,7 +24,7 @@ const NavbarComponent = () => {
     (state: RootState) => state.todoStore.doneCount
   );
 
-  React.useEffect(() => {
+  useEffect(() => {
     window.addEventListener(
       'resize',
       () => window.innerWidth >= 960 && setOpenNav(false)
@@ -69,7 +70,7 @@ const NavbarComponent = () => {
 
   return (
     <>
-      <Navbar className='sticky inset-0 z-10 h-max max-w-full rounded-none py-2 px-4 lg:px-8 lg:py-4'>
+      <Navbar className='sticky inset-0 z-10 h-20 max-w-full rounded-none py-2 px-4 lg:px-8 lg:py-4'>
         <div className='flex items-center justify-between text-blue-gray-900'>
           <Typography
             as='li'
@@ -87,13 +88,7 @@ const NavbarComponent = () => {
           </Typography>
           <div className='flex items-center gap-4'>
             <div className='mr-4 hidden lg:block'>{navList}</div>
-            <Button
-              size='sm'
-              className='hidden lg:inline-block'
-              onClick={onLogoutHandler}
-            >
-              <span>Logout</span>
-            </Button>
+            <SpeedDialComponent />
             <IconButton
               variant='text'
               className='ml-auto h-6 w-6 text-inherit hover:bg-transparent focus:bg-transparent active:bg-transparent lg:hidden'
@@ -141,7 +136,7 @@ const NavbarComponent = () => {
             className='mb-2'
             onClick={onLogoutHandler}
           >
-            <span>Logout</span>
+            Logout
           </Button>
         </Collapse>
       </Navbar>
