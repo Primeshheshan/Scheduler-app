@@ -1,3 +1,4 @@
+import axios from '@/api/axios';
 import AlertPopup from '@/components/alert';
 import TodoTist from '@/components/todoList';
 import useAlert from '@/hooks/alert.hook';
@@ -10,7 +11,6 @@ import {
 import { Color } from '@/types/alert-color';
 import { ITodoObject } from '@/types/todo-object';
 import { Typography } from '@material-tailwind/react';
-import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 
@@ -28,9 +28,7 @@ const InProgress = () => {
   }, []);
 
   const fetchInprogressTodos = async () => {
-    const response = await axios.get(
-      `http://localhost:8080/api/v1/todo/inprogress`
-    );
+    const response = await axios.get('todo/inprogress');
     const { inProgressTodos } = response.data;
     setTodos(inProgressTodos);
   };

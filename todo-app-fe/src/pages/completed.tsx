@@ -1,3 +1,4 @@
+import axios from '@/api/axios';
 import AlertPopup from '@/components/alert';
 import TodoTist from '@/components/todoList';
 import useAlert from '@/hooks/alert.hook';
@@ -6,7 +7,6 @@ import { decrementDoneCount } from '@/redux/todoCount.slice';
 import { Color } from '@/types/alert-color';
 import { ITodoObject } from '@/types/todo-object';
 import { Typography } from '@material-tailwind/react';
-import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 
@@ -18,11 +18,11 @@ const Completed = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    fetchInprogressTodos();
+    fetchDoneTodos();
   }, []);
 
-  const fetchInprogressTodos = async () => {
-    const response = await axios.get(`http://localhost:8080/api/v1/todo/done`);
+  const fetchDoneTodos = async () => {
+    const response = await axios.get('todo/done');
     const { doneTodos } = response.data;
     setTodos(doneTodos);
   };
@@ -32,7 +32,7 @@ const Completed = () => {
       await deleteTodo(id);
       dispatch(decrementDoneCount());
 
-      await fetchInprogressTodos();
+      await fetchDoneTodos();
     } catch (error) {
       showAlert(
         'Task deleting failed!',

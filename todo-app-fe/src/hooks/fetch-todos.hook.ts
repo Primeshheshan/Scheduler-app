@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios from '@/api/axios';
 import { useEffect, useState } from 'react';
 
 const useFetchTodos = () => {
@@ -11,7 +11,7 @@ const useFetchTodos = () => {
 
   const fetchTodos = async () => {
     try {
-      const response = await axios.get(`http://localhost:8080/api/v1/todo`);
+      const response = await axios.get('todo');
       const { allTodos } = response.data;
       setTodos(allTodos);
     } catch (error) {

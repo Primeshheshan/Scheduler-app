@@ -22,7 +22,7 @@ import {
   Textarea,
   Typography,
 } from '@material-tailwind/react';
-import axios from 'axios';
+import axios from '@/api/axios';
 import { useFormik } from 'formik';
 import { Inter } from 'next/font/google';
 import { useEffect, useState } from 'react';
@@ -88,7 +88,7 @@ export default function Home() {
   });
 
   const addTodo = async (title: string, description: string) => {
-    const response = await axios.post('http://localhost:8080/api/v1/todo', {
+    const response = await axios.post('todo', {
       title,
       description,
       status: TodoStatus.IN_PROGRESS,
