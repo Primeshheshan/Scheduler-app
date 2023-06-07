@@ -3,7 +3,7 @@ import ErrorMessage from '@/components/errorMessage';
 import useAlert from '@/hooks/alert.hook';
 import { Color } from '@/types/alert-color';
 import { Button, Card, Input, Typography } from '@material-tailwind/react';
-import axios from 'axios';
+import axios from '@/api/axios';
 import { useFormik } from 'formik';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -29,6 +29,20 @@ const LoginPage = () => {
     validationSchema: SignupSchema,
     onSubmit: async (values: { email: string; password: string }) => {
       try {
+        const response = await axios.post(
+          'auth/login',
+          JSON.stringify({
+            username: values.email,
+            password: values.password,
+          }),
+          {
+            headers: { 'Content-Type': 'application/json' },
+          }
+        );
+        if (response) {
+          localStorage.setItem('isLoggedIn', 'true');
+          router.push('/');
+        }
       } catch (error) {
         showAlert(
           'Login failed!',
