@@ -5,7 +5,7 @@ export const registerUser = async (req, res) => {
     const name = req.body.name;
     const username = req.body.username;
     const password = req.body.password;
-    const user = new User({ username, password });
+    const user = new User({ name, username, password });
     await user.save();
     console.log('A user created!');
     res.sendStatus(201);

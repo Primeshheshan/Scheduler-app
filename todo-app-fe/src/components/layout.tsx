@@ -1,11 +1,11 @@
 import { ReactNode, useEffect, useRef, useState } from 'react';
 import NavbarComponent from './navbar';
-import axios from 'axios';
 import { useDispatch } from 'react-redux';
 import {
   incrementDoneByAmount,
   incrementInprogressByAmount,
 } from '@/redux/todoCount.slice';
+import axios from '@/api/axios';
 
 interface ILayout {
   children: ReactNode;
@@ -17,9 +17,7 @@ export default function Layout({ children }: ILayout) {
 
   const fetchTodoCount = async () => {
     try {
-      const response = await axios.get(
-        `http://localhost:8080/api/v1/todo/count`
-      );
+      const response = await axios.get('todo/count');
       const { doneCount, inProgressCount } = response.data;
       dispatch(incrementInprogressByAmount(inProgressCount));
       dispatch(incrementDoneByAmount(doneCount));

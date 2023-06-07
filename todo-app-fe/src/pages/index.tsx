@@ -1,3 +1,4 @@
+import axios from '@/api/axios';
 import AlertPopup from '@/components/alert';
 import ErrorMessage from '@/components/errorMessage';
 import TodoTist from '@/components/todoList';
@@ -22,7 +23,6 @@ import {
   Textarea,
   Typography,
 } from '@material-tailwind/react';
-import axios from 'axios';
 import { useFormik } from 'formik';
 import { Inter } from 'next/font/google';
 import { useEffect, useState } from 'react';
@@ -88,11 +88,15 @@ export default function Home() {
   });
 
   const addTodo = async (title: string, description: string) => {
-    const response = await axios.post('http://localhost:8080/api/v1/todo', {
-      title,
-      description,
-      status: TodoStatus.IN_PROGRESS,
-    });
+    const response = await axios.post(
+      'todo',
+      JSON.stringify({
+        title,
+        description,
+        status: TodoStatus.IN_PROGRESS,
+      }),
+      { headers: { 'Content-Type': 'application/json' } }
+    );
     if (response.status === 201) {
       showAlert('Task created successfully!', '', 'green');
     }

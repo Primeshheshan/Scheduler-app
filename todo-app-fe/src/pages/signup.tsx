@@ -1,3 +1,4 @@
+import axios from '@/api/axios';
 import AlertPopup from '@/components/alert';
 import ErrorMessage from '@/components/errorMessage';
 import useAlert from '@/hooks/alert.hook';
@@ -9,7 +10,6 @@ import {
   Button,
   Typography,
 } from '@material-tailwind/react';
-import axios from 'axios';
 import { useFormik } from 'formik';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -41,14 +41,16 @@ const SingUpPage = () => {
     }) => {
       try {
         const response = await axios.post(
-          `http://localhost:8080/api/v1/auth/signup`,
-          {
+          'auth/register',
+          JSON.stringify({
             name: values.name,
             username: values.email,
             password: values.password,
+          }),
+          {
+            headers: { 'Content-Type': 'application/json' },
           }
         );
-        console.log(response);
         if (response) {
           localStorage.setItem('isLoggedIn', 'true');
           router.push('/');
