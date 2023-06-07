@@ -40,12 +40,17 @@ const SingUpPage = () => {
       password: string;
     }) => {
       try {
-        const response = await axios.post('auth/register', {
-          name: values.name,
-          username: values.email,
-          password: values.password,
-        });
-        console.log(response);
+        const response = await axios.post(
+          'auth/register',
+          JSON.stringify({
+            name: values.name,
+            username: values.email,
+            password: values.password,
+          }),
+          {
+            headers: { 'Content-Type': 'application/json' },
+          }
+        );
         if (response) {
           localStorage.setItem('isLoggedIn', 'true');
           router.push('/');

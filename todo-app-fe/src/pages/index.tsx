@@ -88,11 +88,15 @@ export default function Home() {
   });
 
   const addTodo = async (title: string, description: string) => {
-    const response = await axios.post('todo', {
-      title,
-      description,
-      status: TodoStatus.IN_PROGRESS,
-    });
+    const response = await axios.post(
+      'todo',
+      JSON.stringify({
+        title,
+        description,
+        status: TodoStatus.IN_PROGRESS,
+      }),
+      { headers: { 'Content-Type': 'application/json' } }
+    );
     if (response.status === 201) {
       showAlert('Task created successfully!', '', 'green');
     }
