@@ -1,3 +1,4 @@
+import axios from '@/api/axios';
 import AlertPopup from '@/components/alert';
 import ErrorMessage from '@/components/errorMessage';
 import TodoTist from '@/components/todoList';
@@ -5,7 +6,6 @@ import { TodoStatus } from '@/enums/todo.enums';
 import useAlert from '@/hooks/alert.hook';
 import useDeleteTodo from '@/hooks/delete-todo.hook';
 import useDoneTodo from '@/hooks/done-todo.hook';
-import useFetchTodos from '@/hooks/fetch-todos.hook';
 import {
   decrementDoneCount,
   decrementImporgressCount,
@@ -22,7 +22,6 @@ import {
   Textarea,
   Typography,
 } from '@material-tailwind/react';
-import axios from 'axios';
 import { useFormik } from 'formik';
 import { Inter } from 'next/font/google';
 import { useEffect, useState } from 'react';
@@ -37,7 +36,6 @@ export default function Home() {
   const dispatch = useDispatch();
 
   const { openAlert, alert, showAlert, setOpenAlert } = useAlert();
-  const { todos, error, fetchTodos } = useFetchTodos();
   const { deleteTodo } = useDeleteTodo();
   const { doneTodo } = useDoneTodo();
 
@@ -45,26 +43,19 @@ export default function Home() {
     title: Yup.string().required('Title is required'),
   });
 
-  useEffect(() => {
-    if (!localStorage.getItem('isLoggedIn')) {
-      showAlert(
-        'User created successfully!',
-        'Congratulations, your account has been successfully created. Thank you for being awesome!',
-        'green'
-      );
-    }
-  }, [showAlert]);
-
-  useEffect(() => {
-    setTodos(todos);
-    if (error) {
+  const fetchTodos = async () => {
+    try {
+      const response = await axios.get('todo');
+      const { allTodos } = response.data;
+      setTodos(allTodos);
+    } catch (error) {
       showAlert(
         'Task fetching failed!',
         'Opps something went wrong, please try again!',
         'red'
       );
     }
-  }, [error, showAlert, todos]);
+  };
 
   const formik = useFormik({
     initialValues: {
@@ -88,16 +79,19 @@ export default function Home() {
   });
 
   const addTodo = async (title: string, description: string) => {
-    const response = await axios.post('http://localhost:8080/api/v1/todo', {
-      title,
-      description,
-      status: TodoStatus.IN_PROGRESS,
-    });
+    const response = await axios.post(
+      'todo',
+      JSON.stringify({
+        title,
+        description,
+        status: TodoStatus.IN_PROGRESS,
+      }),
+      { headers: { 'Content-Type': 'application/json' } }
+    );
     if (response.status === 201) {
       showAlert('Task created successfully!', '', 'green');
     }
     await fetchTodos();
-    if (error) throw error;
   };
 
   const handleDeleteTodo = async (id: string, status: string) => {
@@ -132,7 +126,22 @@ export default function Home() {
       );
     }
   };
-  //
+
+  useEffect(() => {
+    if (!localStorage.getItem('isLoggedIn')) {
+      showAlert(
+        'User created successfully!',
+        'Congratulations, your account has been successfully created. Thank you for being awesome!',
+        'green'
+      );
+    }
+  }, [showAlert]);
+
+  useEffect(() => {
+    fetchTodos();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
     <>
       <div className='md:mx-auto max-w-screen-md py-12 mx-2'>
