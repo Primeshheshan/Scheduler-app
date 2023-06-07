@@ -9,6 +9,7 @@ import {
   Button,
   Typography,
 } from '@material-tailwind/react';
+import axios from 'axios';
 import { useFormik } from 'formik';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -39,8 +40,19 @@ const SingUpPage = () => {
       password: string;
     }) => {
       try {
-        console.log(values);
-        // router.push('/');
+        const response = await axios.post(
+          `http://localhost:8080/api/v1/auth/signup`,
+          {
+            name: values.name,
+            username: values.email,
+            password: values.password,
+          }
+        );
+        console.log(response);
+        if (response) {
+          localStorage.setItem('isLoggedIn', 'true');
+          router.push('/');
+        }
       } catch (error) {
         showAlert(
           'Account creation failed!',

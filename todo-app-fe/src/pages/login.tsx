@@ -29,17 +29,6 @@ const LoginPage = () => {
     validationSchema: SignupSchema,
     onSubmit: async (values: { email: string; password: string }) => {
       try {
-        const response = await axios.post(
-          `http://localhost:8080/api/v1/auth/login`,
-          {
-            username: values.email,
-            password: values.password,
-          }
-        );
-        if (response.status === 201) {
-          localStorage.setItem('isLoggedIn', 'true');
-          router.push('/');
-        }
       } catch (error) {
         showAlert(
           'Login failed!',
