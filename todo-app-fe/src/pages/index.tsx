@@ -45,26 +45,26 @@ export default function Home() {
     title: Yup.string().required('Title is required'),
   });
 
-  // useEffect(() => {
-  //   if (!localStorage.getItem('isLoggedIn')) {
-  //     showAlert(
-  //       'User created successfully!',
-  //       'Congratulations, your account has been successfully created. Thank you for being awesome!',
-  //       'green'
-  //     );
-  //   }
-  // }, [showAlert]);
+  useEffect(() => {
+    if (!localStorage.getItem('isLoggedIn')) {
+      showAlert(
+        'User created successfully!',
+        'Congratulations, your account has been successfully created. Thank you for being awesome!',
+        'green'
+      );
+    }
+  }, [showAlert]);
 
-  // useEffect(() => {
-  //   setTodos(todos);
-  //   if (error) {
-  //     showAlert(
-  //       'Task fetching failed!',
-  //       'Opps something went wrong, please try again!',
-  //       'red'
-  //     );
-  //   }
-  // }, [error, showAlert, todos]);
+  useEffect(() => {
+    setTodos(todos);
+    if (error) {
+      showAlert(
+        'Task fetching failed!',
+        'Opps something went wrong, please try again!',
+        'red'
+      );
+    }
+  }, [error, showAlert, todos]);
 
   const formik = useFormik({
     initialValues: {
