@@ -40,7 +40,7 @@ const SingUpPage = () => {
       password: string;
     }) => {
       try {
-        const response = await axios.post('auth/signup', {
+        const response = await axios.post('auth/register', {
           name: values.name,
           username: values.email,
           password: values.password,
