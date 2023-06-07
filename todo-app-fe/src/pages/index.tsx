@@ -6,7 +6,6 @@ import { TodoStatus } from '@/enums/todo.enums';
 import useAlert from '@/hooks/alert.hook';
 import useDeleteTodo from '@/hooks/delete-todo.hook';
 import useDoneTodo from '@/hooks/done-todo.hook';
-import useFetchTodos from '@/hooks/fetch-todos.hook';
 import {
   decrementDoneCount,
   decrementImporgressCount,
@@ -37,7 +36,6 @@ export default function Home() {
   const dispatch = useDispatch();
 
   const { openAlert, alert, showAlert, setOpenAlert } = useAlert();
-  const { todos, error, fetchTodos } = useFetchTodos();
   const { deleteTodo } = useDeleteTodo();
   const { doneTodo } = useDoneTodo();
 
@@ -45,26 +43,19 @@ export default function Home() {
     title: Yup.string().required('Title is required'),
   });
 
-  useEffect(() => {
-    if (!localStorage.getItem('isLoggedIn')) {
-      showAlert(
-        'User created successfully!',
-        'Congratulations, your account has been successfully created. Thank you for being awesome!',
-        'green'
-      );
-    }
-  }, [showAlert]);
-
-  useEffect(() => {
-    setTodos(todos);
-    if (error) {
+  const fetchTodos = async () => {
+    try {
+      const response = await axios.get('todo');
+      const { allTodos } = response.data;
+      setTodos(allTodos);
+    } catch (error) {
       showAlert(
         'Task fetching failed!',
         'Opps something went wrong, please try again!',
         'red'
       );
     }
-  }, [error, showAlert, todos]);
+  };
 
   const formik = useFormik({
     initialValues: {
@@ -101,7 +92,6 @@ export default function Home() {
       showAlert('Task created successfully!', '', 'green');
     }
     await fetchTodos();
-    if (error) throw error;
   };
 
   const handleDeleteTodo = async (id: string, status: string) => {
@@ -136,7 +126,22 @@ export default function Home() {
       );
     }
   };
-  //
+
+  useEffect(() => {
+    if (!localStorage.getItem('isLoggedIn')) {
+      showAlert(
+        'User created successfully!',
+        'Congratulations, your account has been successfully created. Thank you for being awesome!',
+        'green'
+      );
+    }
+  }, [showAlert]);
+
+  useEffect(() => {
+    fetchTodos();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
     <>
       <div className='md:mx-auto max-w-screen-md py-12 mx-2'>
