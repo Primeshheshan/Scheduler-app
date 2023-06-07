@@ -1,5 +1,4 @@
 import { TodoStatus } from '@/enums/todo.enums';
-import useFetchTodos from '@/hooks/fetch-todos.hook';
 import { XMarkIcon } from '@heroicons/react/24/solid';
 import {
   Button,
@@ -8,7 +7,6 @@ import {
   IconButton,
   Typography,
 } from '@material-tailwind/react';
-import axios from 'axios';
 interface ITodoTist {
   id: string;
   title: string;
