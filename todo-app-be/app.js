@@ -2,9 +2,11 @@ import express from 'express';
 import * as dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import bodyParser from 'body-parser';
-import userRoutes from './src/routes/user.js';
+import authRoutes from './src/routes/auth.js';
 import todoRoutes from './src/routes/todo.js';
 import cors from 'cors';
+import verifyJWT from './src/middleware/verifyJWT.js';
+import cookieParser from 'cookie-parser';
 
 const app = express();
 const port = 8080;
@@ -13,8 +15,11 @@ dotenv.config();
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+app.use(cookieParser()); // middleware for cookies
 
-app.use('/api/v1/auth', userRoutes);
+app.use('/api/v1/auth', authRoutes);
+
+app.use(verifyJWT);
 app.use('/api/v1/todo', todoRoutes);
 
 app.use((error, req, res, next) => {
