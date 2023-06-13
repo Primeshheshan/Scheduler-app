@@ -2,6 +2,7 @@ import axios from '@/api/axios';
 import AlertPopup from '@/components/alert';
 import ErrorMessage from '@/components/errorMessage';
 import useAlert from '@/hooks/alert.hook';
+import { storeAccessToken } from '@/redux/auth.slice';
 import { Color } from '@/types/alert-color';
 import {
   Card,
@@ -13,10 +14,12 @@ import {
 import { useFormik } from 'formik';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { useDispatch } from 'react-redux';
 import * as Yup from 'yup';
 
 const SingUpPage = () => {
   const router = useRouter();
+  const dispatch = useDispatch();
   const { openAlert, alert, showAlert, setOpenAlert } = useAlert();
 
   const SignupSchema = Yup.object().shape({
@@ -52,6 +55,8 @@ const SingUpPage = () => {
           }
         );
         if (response) {
+          const { accessToken } = response.data;
+          dispatch(storeAccessToken(accessToken));
           localStorage.setItem('isLoggedIn', 'true');
           router.push('/');
         }

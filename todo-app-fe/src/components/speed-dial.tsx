@@ -1,3 +1,6 @@
+import { RootState } from '@/redux';
+import { clearAccessToken } from '@/redux/auth.slice';
+import { clearCount } from '@/redux/todoCount.slice';
 import {
   ArrowRightOnRectangleIcon,
   ChevronDownIcon,
@@ -14,10 +17,20 @@ import {
   Typography,
 } from '@material-tailwind/react';
 import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 
 const SpeedDialComponent = () => {
   const router = useRouter();
-  const loginUser = false;
+  const [loginUser, setloginUser] = useState(false);
+  const dispatch = useDispatch();
+  const accessToken = useSelector(
+    (state: RootState) => state.authStore.accessToken
+  );
+
+  useEffect(() => {
+    setloginUser(accessToken !== '');
+  }, [accessToken]);
 
   const labelProps = {
     variant: 'small',
@@ -27,6 +40,8 @@ const SpeedDialComponent = () => {
   };
 
   const onLogoutHandler = () => {
+    dispatch(clearAccessToken());
+    dispatch(clearCount());
     localStorage.removeItem('isLoggedIn');
     router.push('/login');
   };

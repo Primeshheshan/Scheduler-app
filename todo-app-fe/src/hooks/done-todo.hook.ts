@@ -1,12 +1,26 @@
 import axios from '@/api/axios';
 import { TodoStatus } from '@/enums/todo.enums';
+import { RootState } from '@/redux';
+import { useSelector } from 'react-redux';
 
 const useDoneTodo = () => {
+  const accessToken = useSelector(
+    (state: RootState) => state.authStore.accessToken
+  );
   const doneTodo = async (id: string) => {
     try {
-      await axios.put(`todo/${id}`, {
-        status: TodoStatus.DONE,
-      });
+      await axios.put(
+        `todo/${id}`,
+        {
+          status: TodoStatus.DONE,
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
     } catch (error) {
       throw error;
     }
