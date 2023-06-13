@@ -2,7 +2,7 @@ import axios from '@/api/axios';
 import AlertPopup from '@/components/alert';
 import ErrorMessage from '@/components/errorMessage';
 import useAlert from '@/hooks/alert.hook';
-import { storeAccessToken, storeUsername } from '@/redux/auth.slice';
+import { storeUsername } from '@/redux/auth.slice';
 import { Color } from '@/types/alert-color';
 import {
   Card,
@@ -56,10 +56,10 @@ const SingUpPage = () => {
         );
         if (response) {
           const { accessToken } = response.data;
-          dispatch(storeAccessToken(accessToken));
+          localStorage.setItem('accessToken', accessToken);
+          localStorage.setItem('isLoggedIn', 'true');
           const username = values.email.split('@')[0];
           dispatch(storeUsername(username));
-          localStorage.setItem('isLoggedIn', 'true');
           router.push('/');
         }
       } catch (error: any) {

@@ -4,9 +4,7 @@ import { RootState } from '@/redux';
 import { useSelector } from 'react-redux';
 
 const useDoneTodo = () => {
-  const accessToken = useSelector(
-    (state: RootState) => state.authStore.accessToken
-  );
+  const accessToken = localStorage.getItem('accessToken');
   const doneTodo = async (id: string) => {
     try {
       await axios.put(

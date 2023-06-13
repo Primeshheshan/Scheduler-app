@@ -40,9 +40,7 @@ export default function Home() {
   const isLoggedIn = useRef(false);
 
   const dispatch = useDispatch();
-  const accessToken = useSelector(
-    (state: RootState) => state.authStore.accessToken
-  );
+  const accessToken = localStorage.getItem('accessToken');
 
   const { openAlert, alert, showAlert, setOpenAlert } = useAlert();
   const { deleteTodo } = useDeleteTodo();

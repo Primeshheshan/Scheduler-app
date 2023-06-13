@@ -1,5 +1,4 @@
 import { RootState } from '@/redux';
-import { clearAccessToken } from '@/redux/auth.slice';
 import { clearCount } from '@/redux/todoCount.slice';
 import {
   ArrowRightOnRectangleIcon,
@@ -25,13 +24,12 @@ const SpeedDialComponent = () => {
   const router = useRouter();
   const [loginUser, setloginUser] = useState(false);
   const dispatch = useDispatch();
-  const { accessToken, username } = useSelector(
-    (state: RootState) => state.authStore
-  );
+  const username = useSelector((state: RootState) => state.authStore.username);
 
   useEffect(() => {
+    const accessToken = localStorage.getItem('accessToken');
     setloginUser(accessToken !== '');
-  }, [accessToken]);
+  }, []);
 
   const labelProps = {
     variant: 'small',
@@ -41,9 +39,9 @@ const SpeedDialComponent = () => {
   };
 
   const onLogoutHandler = () => {
-    dispatch(clearAccessToken());
     dispatch(clearCount());
     localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('accessToken');
     router.push('/login');
   };
 
