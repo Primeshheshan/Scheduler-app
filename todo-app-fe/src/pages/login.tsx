@@ -2,7 +2,7 @@ import axios from '@/api/axios';
 import AlertPopup from '@/components/alert';
 import ErrorMessage from '@/components/errorMessage';
 import useAlert from '@/hooks/alert.hook';
-import { storeAccessToken } from '@/redux/auth.slice';
+import { storeAccessToken, storeUsername } from '@/redux/auth.slice';
 import { Color } from '@/types/alert-color';
 import { Button, Card, Input, Typography } from '@material-tailwind/react';
 import { useFormik } from 'formik';
@@ -48,14 +48,14 @@ const LoginPage = () => {
           const { accessToken } = response.data;
           localStorage.setItem('isLoggedIn', 'true');
           dispatch(storeAccessToken(accessToken));
+          const username = values.email.split('@')[0];
+          dispatch(storeUsername(username));
           router.push('/');
         }
-      } catch (error) {
-        showAlert(
-          'Login failed!',
-          'Opps something went wrong, please try again!',
-          'red'
-        );
+      } catch (error: any) {
+        const { message } = error.response.data;
+        showAlert('Account creation failed!', `${message}`, 'red');
+        showAlert('Login failed!', `${message}`, 'red');
       }
 
       formik.resetForm();

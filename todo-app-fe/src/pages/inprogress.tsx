@@ -29,19 +29,32 @@ const InProgress = () => {
   const dispatch = useDispatch();
 
   const fetchInprogressTodos = useCallback(async () => {
-    const response = await axios.get('todo/inprogress', {
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${accessToken}`,
-      },
-    });
-    const { inProgressTodos } = response.data;
-    setTodos(inProgressTodos);
-  }, [accessToken]);
+    try {
+      const response = await axios.get('todo/inprogress', {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+      const { inProgressTodos } = response.data;
+      setTodos(inProgressTodos);
+    } catch (error) {
+      if (!accessToken) {
+        showAlert('Please login using username and password!', '', 'red');
+      } else {
+        showAlert(
+          'Task fetching failed!',
+          'Opps something went wrong, please try again!',
+          'red'
+        );
+      }
+    }
+  }, [accessToken, showAlert]);
 
   useEffect(() => {
     fetchInprogressTodos();
-  }, [fetchInprogressTodos]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleDeleteTodo = async (id: string) => {
     try {

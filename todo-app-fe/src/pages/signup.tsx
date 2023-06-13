@@ -2,7 +2,7 @@ import axios from '@/api/axios';
 import AlertPopup from '@/components/alert';
 import ErrorMessage from '@/components/errorMessage';
 import useAlert from '@/hooks/alert.hook';
-import { storeAccessToken } from '@/redux/auth.slice';
+import { storeAccessToken, storeUsername } from '@/redux/auth.slice';
 import { Color } from '@/types/alert-color';
 import {
   Card,
@@ -57,15 +57,14 @@ const SingUpPage = () => {
         if (response) {
           const { accessToken } = response.data;
           dispatch(storeAccessToken(accessToken));
+          const username = values.email.split('@')[0];
+          dispatch(storeUsername(username));
           localStorage.setItem('isLoggedIn', 'true');
           router.push('/');
         }
-      } catch (error) {
-        showAlert(
-          'Account creation failed!',
-          'Opps something went wrong, please try again!',
-          'red'
-        );
+      } catch (error: any) {
+        const { message } = error.response.data;
+        showAlert('Account creation failed!', `${message}`, 'red');
       }
 
       formik.resetForm();

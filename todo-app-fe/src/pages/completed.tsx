@@ -22,19 +22,32 @@ const Completed = () => {
   );
 
   const fetchDoneTodos = useCallback(async () => {
-    const response = await axios.get('todo/done', {
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${accessToken}`,
-      },
-    });
-    const { doneTodos } = response.data;
-    setTodos(doneTodos);
-  }, [accessToken]);
+    try {
+      const response = await axios.get('todo/done', {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+      const { doneTodos } = response.data;
+      setTodos(doneTodos);
+    } catch (error) {
+      if (!accessToken) {
+        showAlert('Please login using username and password!', '', 'red');
+      } else {
+        showAlert(
+          'Task fetching failed!',
+          'Opps something went wrong, please try again!',
+          'red'
+        );
+      }
+    }
+  }, [accessToken, showAlert]);
 
   useEffect(() => {
     fetchDoneTodos();
-  }, [fetchDoneTodos]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleDeleteTodo = async (id: string) => {
     try {

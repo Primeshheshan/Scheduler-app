@@ -7,6 +7,7 @@ import useAlert from '@/hooks/alert.hook';
 import useDeleteTodo from '@/hooks/delete-todo.hook';
 import useDoneTodo from '@/hooks/done-todo.hook';
 import { RootState } from '@/redux';
+import { storeUsername } from '@/redux/auth.slice';
 import {
   decrementDoneCount,
   decrementImporgressCount,
@@ -69,22 +70,24 @@ export default function Home() {
 
   const fetchTodos = useCallback(async () => {
     try {
-      if (accessToken !== '') {
-        const response = await axios.get('todo', {
-          withCredentials: true,
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        });
-        const { allTodos } = response.data;
-        setTodos(allTodos);
-      }
+      const response = await axios.get('todo', {
+        withCredentials: true,
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+      const { allTodos } = response.data;
+      setTodos(allTodos);
     } catch (error) {
-      showAlert(
-        'Task fetching failed!',
-        'Opps something went wrong, please try again!',
-        'red'
-      );
+      if (!accessToken) {
+        showAlert('Please login using username and password!', '', 'red');
+      } else {
+        showAlert(
+          'Task fetching failed!',
+          'Opps something went wrong, please try again!',
+          'red'
+        );
+      }
     }
   }, [accessToken, showAlert]);
 
@@ -110,24 +113,32 @@ export default function Home() {
   });
 
   const addTodo = async (title: string, description: string) => {
-    const response = await axios.post(
-      'todo',
-      JSON.stringify({
-        title,
-        description,
-        status: TodoStatus.IN_PROGRESS,
-      }),
-      {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
-        },
+    try {
+      const response = await axios.post(
+        'todo',
+        JSON.stringify({
+          title,
+          description,
+          status: TodoStatus.IN_PROGRESS,
+        }),
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
+      if (response.status === 201) {
+        showAlert('Task created successfully!', '', 'green');
       }
-    );
-    if (response.status === 201) {
-      showAlert('Task created successfully!', '', 'green');
+      await fetchTodos();
+    } catch (error) {
+      showAlert(
+        'Task adding failed!',
+        'Opps something went wrong, please try again!',
+        'red'
+      );
     }
-    await fetchTodos();
   };
 
   const handleDeleteTodo = async (id: string, status: string) => {
@@ -165,11 +176,11 @@ export default function Home() {
 
   useEffect(() => {
     if (!isFetchedData.current) {
-      fetchTodoCount();
       fetchTodos();
+      fetchTodoCount();
     }
     isFetchedData.current = true;
-  }, [fetchTodoCount, fetchTodos]);
+  }, [fetchTodos, fetchTodoCount]);
 
   return (
     <>
