@@ -6,8 +6,6 @@ import { TodoStatus } from '@/enums/todo.enums';
 import useAlert from '@/hooks/alert.hook';
 import useDeleteTodo from '@/hooks/delete-todo.hook';
 import useDoneTodo from '@/hooks/done-todo.hook';
-import { RootState } from '@/redux';
-import { storeUsername } from '@/redux/auth.slice';
 import {
   decrementDoneCount,
   decrementImporgressCount,
@@ -27,9 +25,8 @@ import {
 } from '@material-tailwind/react';
 import { useFormik } from 'formik';
 import { Inter } from 'next/font/google';
-import { GetStaticProps } from 'next/types';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import * as Yup from 'yup';
 
 const inter = Inter({ subsets: ['latin'] });
