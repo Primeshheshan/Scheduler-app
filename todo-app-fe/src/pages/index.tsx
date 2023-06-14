@@ -128,16 +128,6 @@ export default function Home() {
   };
 
   useEffect(() => {
-    if (!localStorage.getItem('isLoggedIn')) {
-      showAlert(
-        'User created successfully!',
-        'Congratulations, your account has been successfully created. Thank you for being awesome!',
-        'green'
-      );
-    }
-  }, [showAlert]);
-
-  useEffect(() => {
     fetchTodos();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
