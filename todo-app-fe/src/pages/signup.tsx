@@ -2,6 +2,7 @@ import axios from '@/api/axios';
 import AlertPopup from '@/components/alert';
 import ErrorMessage from '@/components/errorMessage';
 import useAlert from '@/hooks/alert.hook';
+import { storeUsername } from '@/redux/auth.slice';
 import { Color } from '@/types/alert-color';
 import {
   Card,
@@ -13,10 +14,12 @@ import {
 import { useFormik } from 'formik';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { useDispatch } from 'react-redux';
 import * as Yup from 'yup';
 
 const SingUpPage = () => {
   const router = useRouter();
+  const dispatch = useDispatch();
   const { openAlert, alert, showAlert, setOpenAlert } = useAlert();
 
   const SignupSchema = Yup.object().shape({
@@ -52,15 +55,16 @@ const SingUpPage = () => {
           }
         );
         if (response) {
+          const { accessToken } = response.data;
+          localStorage.setItem('accessToken', accessToken);
           localStorage.setItem('isLoggedIn', 'true');
+          const username = values.email.split('@')[0];
+          dispatch(storeUsername(username));
           router.push('/');
         }
-      } catch (error) {
-        showAlert(
-          'Account creation failed!',
-          'Opps something went wrong, please try again!',
-          'red'
-        );
+      } catch (error: any) {
+        const { message } = error.response.data;
+        showAlert('Account creation failed!', `${message}`, 'red');
       }
 
       formik.resetForm();
