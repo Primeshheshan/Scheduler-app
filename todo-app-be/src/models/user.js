@@ -1,5 +1,8 @@
 import mongoose from 'mongoose';
+import bcrypt from 'bcrypt';
+
 const { Schema } = mongoose;
+const SALT_WORK_FACTOR = 10;
 
 const userSchema = new Schema({
   name: {
@@ -14,6 +17,26 @@ const userSchema = new Schema({
     type: String,
     require: true,
   },
+  refreshToken: {
+    type: String,
+    require: false,
+  },
+});
+
+userSchema.pre('save', async function (next) {
+  const user = this;
+
+  if (!user?.isModified('password')) {
+    return next();
+  }
+  try {
+    const salt = await bcrypt.genSalt(SALT_WORK_FACTOR);
+    const hashedPassword = await bcrypt.hash(user.password, salt);
+    user.password = hashedPassword;
+    next();
+  } catch (error) {
+    return next(error);
+  }
 });
 
 const User = mongoose.model('User', userSchema);

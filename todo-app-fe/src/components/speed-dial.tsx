@@ -1,4 +1,6 @@
+import { clearCount } from '@/redux/todoCount.slice';
 import {
+  ArrowLeftOnRectangleIcon,
   ArrowRightOnRectangleIcon,
   ChevronDownIcon,
   CogIcon,
@@ -14,10 +16,17 @@ import {
   Typography,
 } from '@material-tailwind/react';
 import { useRouter } from 'next/router';
+import { useEffect, useRef } from 'react';
+import { useDispatch } from 'react-redux';
 
 const SpeedDialComponent = () => {
   const router = useRouter();
-  const loginUser = false;
+  const dispatch = useDispatch();
+  const accessToken = useRef<string | null>('');
+
+  useEffect(() => {
+    accessToken.current = localStorage.getItem('accessToken');
+  }, []);
 
   const labelProps = {
     variant: 'small',
@@ -27,7 +36,9 @@ const SpeedDialComponent = () => {
   };
 
   const onLogoutHandler = () => {
-    localStorage.removeItem('isLoggedIn');
+    dispatch(clearCount());
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('username');
     router.push('/login');
   };
 
@@ -39,14 +50,18 @@ const SpeedDialComponent = () => {
     <SpeedDial className=''>
       <div className='hidden lg:block'>
         <div
-          className={`flex items-center w-40 ${
-            loginUser ? 'justify-between' : 'justify-end'
+          className={`flex items-center max-w-md ${
+            accessToken.current !== '' ? 'justify-between' : 'justify-end'
           }`}
         >
-          {loginUser && (
+          {accessToken.current !== '' && (
             <>
-              <Typography variant='small' color='gray' className='font-normal'>
-                Primesh
+              <Typography
+                variant='small'
+                color='gray'
+                className='font-normal mr-1'
+              >
+                {localStorage.getItem('username')}
               </Typography>
               <Avatar src='/profile.jpg' alt='avatar' />
             </>
@@ -72,13 +87,23 @@ const SpeedDialComponent = () => {
           <Typography {...labelProps}>Settings</Typography>
         </SpeedDialAction>
         <SpeedDialAction className='relative'>
-          <ArrowRightOnRectangleIcon
-            className='h-5 w-5'
-            onClick={onLogoutHandler}
-          />
-          <Typography {...labelProps}>
-            {loginUser ? 'Logout' : 'Login'}
-          </Typography>
+          {accessToken.current !== '' ? (
+            <>
+              <ArrowRightOnRectangleIcon
+                className='h-5 w-5'
+                onClick={onLogoutHandler}
+              />
+              <Typography {...labelProps}>Logout</Typography>
+            </>
+          ) : (
+            <>
+              <ArrowLeftOnRectangleIcon
+                className='h-5 w-5'
+                onClick={onLogoutHandler}
+              />
+              <Typography {...labelProps}>Login</Typography>
+            </>
+          )}
         </SpeedDialAction>
       </SpeedDialContent>
     </SpeedDial>

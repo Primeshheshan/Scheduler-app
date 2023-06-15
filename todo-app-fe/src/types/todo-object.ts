@@ -4,4 +4,5 @@ export type ITodoObject = {
   description: string;
   __v: number;
   status: string;
+  username: string;
 };

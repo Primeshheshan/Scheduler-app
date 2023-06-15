@@ -4,6 +4,7 @@ import TodoTist from '@/components/todoList';
 import useAlert from '@/hooks/alert.hook';
 import useDeleteTodo from '@/hooks/delete-todo.hook';
 import useDoneTodo from '@/hooks/done-todo.hook';
+import { RootState } from '@/redux';
 import {
   decrementImporgressCount,
   incrementDoneCount,
@@ -11,8 +12,8 @@ import {
 import { Color } from '@/types/alert-color';
 import { ITodoObject } from '@/types/todo-object';
 import { Typography } from '@material-tailwind/react';
-import { useEffect, useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 
 const InProgress = () => {
   const [todosArray, setTodos] = useState<ITodoObject[]>([]);
@@ -21,17 +22,41 @@ const InProgress = () => {
   const { deleteTodo } = useDeleteTodo();
   const { openAlert, alert, showAlert, setOpenAlert } = useAlert();
 
+  const accessToken = useRef<string | null>('');
+
+  useEffect(() => {
+    accessToken.current = localStorage.getItem('accessToken');
+  }, []);
+
   const dispatch = useDispatch();
+
+  const fetchInprogressTodos = useCallback(async () => {
+    try {
+      const response = await axios.get('todo/inprogress', {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken.current}`,
+        },
+      });
+      const { inProgressTodos } = response.data;
+      setTodos(inProgressTodos);
+    } catch (error) {
+      if (!accessToken.current) {
+        showAlert('Please login using username and password!', '', 'red');
+      } else {
+        showAlert(
+          'Task fetching failed!',
+          'Opps something went wrong, please try again!',
+          'red'
+        );
+      }
+    }
+  }, [accessToken, showAlert]);
 
   useEffect(() => {
     fetchInprogressTodos();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  const fetchInprogressTodos = async () => {
-    const response = await axios.get('todo/inprogress');
-    const { inProgressTodos } = response.data;
-    setTodos(inProgressTodos);
-  };
 
   const handleDeleteTodo = async (id: string) => {
     try {

@@ -1,16 +1,18 @@
+import axios from '@/api/axios';
 import AlertPopup from '@/components/alert';
 import ErrorMessage from '@/components/errorMessage';
 import useAlert from '@/hooks/alert.hook';
 import { Color } from '@/types/alert-color';
 import { Button, Card, Input, Typography } from '@material-tailwind/react';
-import axios from '@/api/axios';
 import { useFormik } from 'formik';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { useDispatch } from 'react-redux';
 import * as Yup from 'yup';
 
 const LoginPage = () => {
   const { openAlert, alert, showAlert, setOpenAlert } = useAlert();
+  const dispatch = useDispatch();
 
   const router = useRouter();
 
@@ -36,19 +38,21 @@ const LoginPage = () => {
             password: values.password,
           }),
           {
+            withCredentials: true,
             headers: { 'Content-Type': 'application/json' },
           }
         );
         if (response) {
-          localStorage.setItem('isLoggedIn', 'true');
+          const { accessToken } = response.data;
+          localStorage.setItem('accessToken', accessToken);
+          const username = values.email.split('@')[0];
+          localStorage.setItem('username', username);
           router.push('/');
         }
-      } catch (error) {
-        showAlert(
-          'Login failed!',
-          'Opps something went wrong, please try again!',
-          'red'
-        );
+      } catch (error: any) {
+        const { message } = error.response.data;
+        showAlert('Account creation failed!', `${message}`, 'red');
+        showAlert('Login failed!', `${message}`, 'red');
       }
 
       formik.resetForm();

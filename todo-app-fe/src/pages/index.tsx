@@ -9,8 +9,10 @@ import useDoneTodo from '@/hooks/done-todo.hook';
 import {
   decrementDoneCount,
   decrementImporgressCount,
+  incrementDoneByAmount,
   incrementDoneCount,
   incrementImporgressCount,
+  incrementInprogressByAmount,
 } from '@/redux/todoCount.slice';
 import { Color } from '@/types/alert-color';
 import { ITodoObject } from '@/types/todo-object';
@@ -18,13 +20,12 @@ import {
   Button,
   Card,
   Input,
-  Spinner,
   Textarea,
   Typography,
 } from '@material-tailwind/react';
 import { useFormik } from 'formik';
 import { Inter } from 'next/font/google';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import * as Yup from 'yup';
 
@@ -32,6 +33,8 @@ const inter = Inter({ subsets: ['latin'] });
 
 export default function Home() {
   const [todosArray, setTodos] = useState<ITodoObject[]>([]);
+  const isFetchedData = useRef(false);
+  const accessToken = useRef<string | null>('');
 
   const dispatch = useDispatch();
 
@@ -39,23 +42,48 @@ export default function Home() {
   const { deleteTodo } = useDeleteTodo();
   const { doneTodo } = useDoneTodo();
 
+  const fetchTodoCount = useCallback(async () => {
+    try {
+      const response = await axios.get('todo/count', {
+        withCredentials: true,
+        headers: {
+          Authorization: `Bearer ${accessToken.current}`,
+        },
+      });
+      const { doneCount, inProgressCount } = response?.data;
+      dispatch(incrementInprogressByAmount(inProgressCount));
+      dispatch(incrementDoneByAmount(doneCount));
+    } catch (error) {
+      console.log(error);
+    }
+  }, [accessToken, dispatch]);
+
   const addNewTaskValidationSchema = Yup.object().shape({
     title: Yup.string().required('Title is required'),
   });
 
-  const fetchTodos = async () => {
+  const fetchTodos = useCallback(async () => {
     try {
-      const response = await axios.get('todo');
-      const { allTodos } = response.data;
+      const response = await axios.get('todo', {
+        withCredentials: true,
+        headers: {
+          Authorization: `Bearer ${accessToken.current}`,
+        },
+      });
+      const { allTodos } = response?.data;
       setTodos(allTodos);
     } catch (error) {
-      showAlert(
-        'Task fetching failed!',
-        'Opps something went wrong, please try again!',
-        'red'
-      );
+      if (!accessToken) {
+        showAlert('Please login using username and password!', '', 'red');
+      } else {
+        showAlert(
+          'Task fetching failed!',
+          'Opps something went wrong, please try again!',
+          'red'
+        );
+      }
     }
-  };
+  }, [accessToken, showAlert]);
 
   const formik = useFormik({
     initialValues: {
@@ -79,19 +107,32 @@ export default function Home() {
   });
 
   const addTodo = async (title: string, description: string) => {
-    const response = await axios.post(
-      'todo',
-      JSON.stringify({
-        title,
-        description,
-        status: TodoStatus.IN_PROGRESS,
-      }),
-      { headers: { 'Content-Type': 'application/json' } }
-    );
-    if (response.status === 201) {
-      showAlert('Task created successfully!', '', 'green');
+    try {
+      const response = await axios.post(
+        'todo',
+        JSON.stringify({
+          title,
+          description,
+          status: TodoStatus.IN_PROGRESS,
+        }),
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${accessToken.current}`,
+          },
+        }
+      );
+      if (response.status === 201) {
+        showAlert('Task created successfully!', '', 'green');
+      }
+      await fetchTodos();
+    } catch (error) {
+      showAlert(
+        'Task adding failed!',
+        'Opps something went wrong, please try again!',
+        'red'
+      );
     }
-    await fetchTodos();
   };
 
   const handleDeleteTodo = async (id: string, status: string) => {
@@ -128,24 +169,21 @@ export default function Home() {
   };
 
   useEffect(() => {
-    if (!localStorage.getItem('isLoggedIn')) {
-      showAlert(
-        'User created successfully!',
-        'Congratulations, your account has been successfully created. Thank you for being awesome!',
-        'green'
-      );
-    }
-  }, [showAlert]);
+    accessToken.current = localStorage.getItem('accessToken');
+  }, [dispatch]);
 
   useEffect(() => {
-    fetchTodos();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    if (!isFetchedData.current) {
+      fetchTodos();
+      fetchTodoCount();
+    }
+    isFetchedData.current = true;
+  }, [fetchTodos, fetchTodoCount]);
 
   return (
     <>
       <div className='md:mx-auto max-w-screen-md py-12 mx-2'>
-        <div className='relative q-full max-q-lg top-56'>
+        <div className='relative q-full max-q-lg top-52'>
           <div className='absolute top-0 -left-2 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob'></div>
           <div className='absolute top-0 right-64 w-72 h-72 bg-yellow-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000'></div>
           <div className='absolute top-20 left-20 w-72 h-72 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000'></div>
@@ -184,7 +222,7 @@ export default function Home() {
           </form>
         </Card>
       </div>
-      {todosArray.length ? (
+      {todosArray?.length ? (
         todosArray.map((todo) => (
           <TodoTist
             key={todo._id}
