@@ -170,7 +170,6 @@ export default function Home() {
 
   useEffect(() => {
     accessToken.current = localStorage.getItem('accessToken');
-    const username = localStorage.getItem('accessToken') ?? '';
   }, [dispatch]);
 
   useEffect(() => {
