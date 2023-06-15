@@ -12,7 +12,7 @@ import {
 import { Color } from '@/types/alert-color';
 import { ITodoObject } from '@/types/todo-object';
 import { Typography } from '@material-tailwind/react';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 const InProgress = () => {
@@ -22,9 +22,11 @@ const InProgress = () => {
   const { deleteTodo } = useDeleteTodo();
   const { openAlert, alert, showAlert, setOpenAlert } = useAlert();
 
-  const accessToken = useSelector(
-    (state: RootState) => state.authStore.accessToken
-  );
+  const accessToken = useRef<string | null>('');
+
+  useEffect(() => {
+    accessToken.current = localStorage.getItem('accessToken');
+  }, []);
 
   const dispatch = useDispatch();
 
@@ -33,13 +35,13 @@ const InProgress = () => {
       const response = await axios.get('todo/inprogress', {
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
+          Authorization: `Bearer ${accessToken.current}`,
         },
       });
       const { inProgressTodos } = response.data;
       setTodos(inProgressTodos);
     } catch (error) {
-      if (!accessToken) {
+      if (!accessToken.current) {
         showAlert('Please login using username and password!', '', 'red');
       } else {
         showAlert(

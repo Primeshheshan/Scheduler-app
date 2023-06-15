@@ -6,8 +6,6 @@ import { TodoStatus } from '@/enums/todo.enums';
 import useAlert from '@/hooks/alert.hook';
 import useDeleteTodo from '@/hooks/delete-todo.hook';
 import useDoneTodo from '@/hooks/done-todo.hook';
-import { RootState } from '@/redux';
-import { storeUsername } from '@/redux/auth.slice';
 import {
   decrementDoneCount,
   decrementImporgressCount,
@@ -27,9 +25,8 @@ import {
 } from '@material-tailwind/react';
 import { useFormik } from 'formik';
 import { Inter } from 'next/font/google';
-import { GetStaticProps } from 'next/types';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import * as Yup from 'yup';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -37,10 +34,9 @@ const inter = Inter({ subsets: ['latin'] });
 export default function Home() {
   const [todosArray, setTodos] = useState<ITodoObject[]>([]);
   const isFetchedData = useRef(false);
-  const isLoggedIn = useRef(false);
+  const accessToken = useRef<string | null>('');
 
   const dispatch = useDispatch();
-  const accessToken = localStorage.getItem('accessToken');
 
   const { openAlert, alert, showAlert, setOpenAlert } = useAlert();
   const { deleteTodo } = useDeleteTodo();
@@ -51,10 +47,10 @@ export default function Home() {
       const response = await axios.get('todo/count', {
         withCredentials: true,
         headers: {
-          Authorization: `Bearer ${accessToken}`,
+          Authorization: `Bearer ${accessToken.current}`,
         },
       });
-      const { doneCount, inProgressCount } = response.data;
+      const { doneCount, inProgressCount } = response?.data;
       dispatch(incrementInprogressByAmount(inProgressCount));
       dispatch(incrementDoneByAmount(doneCount));
     } catch (error) {
@@ -71,10 +67,10 @@ export default function Home() {
       const response = await axios.get('todo', {
         withCredentials: true,
         headers: {
-          Authorization: `Bearer ${accessToken}`,
+          Authorization: `Bearer ${accessToken.current}`,
         },
       });
-      const { allTodos } = response.data;
+      const { allTodos } = response?.data;
       setTodos(allTodos);
     } catch (error) {
       if (!accessToken) {
@@ -122,7 +118,7 @@ export default function Home() {
         {
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${accessToken}`,
+            Authorization: `Bearer ${accessToken.current}`,
           },
         }
       );
@@ -171,6 +167,11 @@ export default function Home() {
       );
     }
   };
+
+  useEffect(() => {
+    accessToken.current = localStorage.getItem('accessToken');
+    const username = localStorage.getItem('accessToken') ?? '';
+  }, [dispatch]);
 
   useEffect(() => {
     if (!isFetchedData.current) {

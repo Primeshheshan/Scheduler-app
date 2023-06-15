@@ -12,7 +12,7 @@ axiosInstance.interceptors.response.use(
         const response = await axiosInstance.get('auth/refresh', {
           withCredentials: true,
         });
-        const { accessToken } = response.data;
+        const { accessToken } = response?.data ?? '';
         localStorage.setItem('accessToken', accessToken);
       };
       getRefreshToken();

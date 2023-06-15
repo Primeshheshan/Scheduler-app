@@ -57,8 +57,8 @@ const SingUpPage = () => {
         if (response) {
           const { accessToken } = response.data;
           localStorage.setItem('accessToken', accessToken);
-          localStorage.setItem('isLoggedIn', 'true');
           const username = values.email.split('@')[0];
+          localStorage.setItem('username', username);
           dispatch(storeUsername(username));
           router.push('/');
         }

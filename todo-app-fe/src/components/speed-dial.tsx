@@ -1,8 +1,7 @@
-import { RootState } from '@/redux';
 import { clearCount } from '@/redux/todoCount.slice';
 import {
-  ArrowRightOnRectangleIcon,
   ArrowLeftOnRectangleIcon,
+  ArrowRightOnRectangleIcon,
   ChevronDownIcon,
   CogIcon,
   HomeIcon,
@@ -17,18 +16,16 @@ import {
   Typography,
 } from '@material-tailwind/react';
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useEffect, useRef } from 'react';
+import { useDispatch } from 'react-redux';
 
 const SpeedDialComponent = () => {
   const router = useRouter();
-  const [loginUser, setloginUser] = useState(false);
   const dispatch = useDispatch();
-  const username = useSelector((state: RootState) => state.authStore.username);
+  const accessToken = useRef<string | null>('');
 
   useEffect(() => {
-    const accessToken = localStorage.getItem('accessToken');
-    setloginUser(accessToken !== '');
+    accessToken.current = localStorage.getItem('accessToken');
   }, []);
 
   const labelProps = {
@@ -40,8 +37,8 @@ const SpeedDialComponent = () => {
 
   const onLogoutHandler = () => {
     dispatch(clearCount());
-    localStorage.removeItem('isLoggedIn');
     localStorage.removeItem('accessToken');
+    localStorage.removeItem('username');
     router.push('/login');
   };
 
@@ -54,17 +51,17 @@ const SpeedDialComponent = () => {
       <div className='hidden lg:block'>
         <div
           className={`flex items-center max-w-md ${
-            loginUser ? 'justify-between' : 'justify-end'
+            accessToken.current !== '' ? 'justify-between' : 'justify-end'
           }`}
         >
-          {loginUser && (
+          {accessToken.current !== '' && (
             <>
               <Typography
                 variant='small'
                 color='gray'
                 className='font-normal mr-1'
               >
-                {username}
+                {localStorage.getItem('username')}
               </Typography>
               <Avatar src='/profile.jpg' alt='avatar' />
             </>
@@ -90,7 +87,7 @@ const SpeedDialComponent = () => {
           <Typography {...labelProps}>Settings</Typography>
         </SpeedDialAction>
         <SpeedDialAction className='relative'>
-          {loginUser ? (
+          {accessToken.current !== '' ? (
             <>
               <ArrowRightOnRectangleIcon
                 className='h-5 w-5'

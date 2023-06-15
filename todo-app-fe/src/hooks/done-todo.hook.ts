@@ -1,10 +1,14 @@
 import axios from '@/api/axios';
 import { TodoStatus } from '@/enums/todo.enums';
-import { RootState } from '@/redux';
-import { useSelector } from 'react-redux';
+import { useEffect, useRef } from 'react';
 
 const useDoneTodo = () => {
-  const accessToken = localStorage.getItem('accessToken');
+  const accessToken = useRef<string | null>('');
+
+  useEffect(() => {
+    accessToken.current = localStorage.getItem('accessToken');
+  }, []);
+
   const doneTodo = async (id: string) => {
     try {
       await axios.put(
@@ -15,7 +19,7 @@ const useDoneTodo = () => {
         {
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${accessToken}`,
+            Authorization: `Bearer ${accessToken.current}`,
           },
         }
       );

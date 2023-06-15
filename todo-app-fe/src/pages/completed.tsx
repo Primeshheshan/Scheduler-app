@@ -8,7 +8,7 @@ import { decrementDoneCount } from '@/redux/todoCount.slice';
 import { Color } from '@/types/alert-color';
 import { ITodoObject } from '@/types/todo-object';
 import { Typography } from '@material-tailwind/react';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 const Completed = () => {
@@ -17,22 +17,24 @@ const Completed = () => {
   const { openAlert, alert, showAlert, setOpenAlert } = useAlert();
 
   const dispatch = useDispatch();
-  const accessToken = useSelector(
-    (state: RootState) => state.authStore.accessToken
-  );
+  const accessToken = useRef<string | null>('');
+
+  useEffect(() => {
+    accessToken.current = localStorage.getItem('accessToken');
+  }, []);
 
   const fetchDoneTodos = useCallback(async () => {
     try {
       const response = await axios.get('todo/done', {
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
+          Authorization: `Bearer ${accessToken.current}`,
         },
       });
       const { doneTodos } = response.data;
       setTodos(doneTodos);
     } catch (error) {
-      if (!accessToken) {
+      if (!accessToken.current) {
         showAlert('Please login using username and password!', '', 'red');
       } else {
         showAlert(
