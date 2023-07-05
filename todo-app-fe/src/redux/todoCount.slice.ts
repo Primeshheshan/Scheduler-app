@@ -28,10 +28,10 @@ const todoSlice = createSlice({
       state: State,
       action: PayloadAction<number>
     ) => {
-      state.inProgressCount += action.payload;
+      state.inProgressCount = action.payload;
     },
     incrementDoneByAmount: (state: State, action: PayloadAction<number>) => {
-      state.doneCount += action.payload;
+      state.doneCount = action.payload;
     },
     clearCount: (state: State) => {
       state.doneCount = 0;

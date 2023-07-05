@@ -23,6 +23,7 @@ import {
   Textarea,
   Typography,
 } from '@material-tailwind/react';
+import { current } from '@reduxjs/toolkit';
 import { useFormik } from 'formik';
 import { Inter } from 'next/font/google';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -35,20 +36,25 @@ export default function Home() {
   const [todosArray, setTodos] = useState<ITodoObject[]>([]);
   const isFetchedData = useRef(false);
   const isLoggedIn = useRef(false);
+  const accessToken = useRef("");
 
   const dispatch = useDispatch();
-  const accessToken = localStorage.getItem('accessToken');
 
   const { openAlert, alert, showAlert, setOpenAlert } = useAlert();
   const { deleteTodo } = useDeleteTodo();
   const { doneTodo } = useDoneTodo();
+
+  useEffect(() => {
+     accessToken.current = localStorage.getItem('accessToken') ?? "";
+  }, []);
+
 
   const fetchTodoCount = useCallback(async () => {
     try {
       const response = await axios.get('todo/count', {
         withCredentials: true,
         headers: {
-          Authorization: `Bearer ${accessToken}`,
+          Authorization: `Bearer ${accessToken.current}`,
         },
       });
       const { doneCount, inProgressCount } = response.data;
@@ -59,6 +65,11 @@ export default function Home() {
     }
   }, [accessToken, dispatch]);
 
+  useEffect(() => {
+    if(accessToken.current !== "") fetchTodoCount()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const addNewTaskValidationSchema = Yup.object().shape({
     title: Yup.string().required('Title is required'),
   });
@@ -68,7 +79,7 @@ export default function Home() {
       const response = await axios.get('todo', {
         withCredentials: true,
         headers: {
-          Authorization: `Bearer ${accessToken}`,
+          Authorization: `Bearer ${accessToken.current}`,
         },
       });
       const { allTodos } = response.data;
@@ -119,7 +130,7 @@ export default function Home() {
         {
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${accessToken}`,
+            Authorization: `Bearer ${accessToken.current}`,
           },
         }
       );
