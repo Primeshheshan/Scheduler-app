@@ -35,8 +35,7 @@ const inter = Inter({ subsets: ['latin'] });
 export default function Home() {
   const [todosArray, setTodos] = useState<ITodoObject[]>([]);
   const isFetchedData = useRef(false);
-  const isLoggedIn = useRef(false);
-  const accessToken = useRef("");
+  const accessToken = useRef<string | null>('');
 
   const dispatch = useDispatch();
 
@@ -57,7 +56,7 @@ export default function Home() {
           Authorization: `Bearer ${accessToken.current}`,
         },
       });
-      const { doneCount, inProgressCount } = response.data;
+      const { doneCount, inProgressCount } = response?.data;
       dispatch(incrementInprogressByAmount(inProgressCount));
       dispatch(incrementDoneByAmount(doneCount));
     } catch (error) {
@@ -82,7 +81,7 @@ export default function Home() {
           Authorization: `Bearer ${accessToken.current}`,
         },
       });
-      const { allTodos } = response.data;
+      const { allTodos } = response?.data;
       setTodos(allTodos);
     } catch (error) {
       if (!accessToken) {
@@ -181,9 +180,16 @@ export default function Home() {
   };
 
   useEffect(() => {
-    fetchTodos();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    accessToken.current = localStorage.getItem('accessToken');
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (!isFetchedData.current) {
+      fetchTodos();
+      fetchTodoCount();
+    }
+    isFetchedData.current = true;
+  }, [fetchTodos, fetchTodoCount]);
 
   return (
     <>

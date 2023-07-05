@@ -37,8 +37,8 @@ const NavbarComponent = () => {
         as='li'
         variant='small'
         color='blue-gray'
-        className={`p-2 font-semibold hover:bg-gray-200 rounded-sm ${
-          router.asPath === '/inprogress' ? 'border-b-2 border-gray-500' : null
+        className={`py-2 px-3 font-semibold hover:bg-gray-200 rounded-full ${
+          router.asPath === '/inprogress' ? 'bg-gray-300' : null
         }`}
       >
         <Link href='/inprogress' className={`flex items-center `}>
@@ -51,8 +51,8 @@ const NavbarComponent = () => {
         as='li'
         variant='small'
         color='blue-gray'
-        className={`p-2 font-semibold hover:bg-gray-200 rounded-sm ${
-          router.asPath === '/completed' ? 'border-b-2 border-gray-500' : null
+        className={`py-2 px-3 font-semibold hover:bg-gray-200 rounded-full ${
+          router.asPath === '/completed' ? 'bg-gray-300' : null
         }`}
       >
         <Link href='/completed' className='flex items-center'>
@@ -64,7 +64,7 @@ const NavbarComponent = () => {
   );
 
   const onLogoutHandler = () => {
-    localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('accessToken');
     router.push('login');
   };
 
@@ -79,8 +79,8 @@ const NavbarComponent = () => {
           >
             <Link
               href='/'
-              className={`flex items-center ${
-                router.asPath === '/' ? 'border-b-2 border-gray-500' : null
+              className={`py-2 px-3 flex items-center hover:bg-gray-200 rounded-full ${
+                router.asPath === '/' ? 'bg-gray-300' : null
               }`}
             >
               Todo
