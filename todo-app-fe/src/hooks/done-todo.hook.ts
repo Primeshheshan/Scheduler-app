@@ -1,8 +1,6 @@
 import axios from '@/api/axios';
 import { TodoStatus } from '@/enums/todo.enums';
-import { RootState } from '@/redux';
 import { useEffect, useRef } from 'react';
-import { useSelector } from 'react-redux';
 
 const useDoneTodo = () => {
   const accessToken = useRef("");

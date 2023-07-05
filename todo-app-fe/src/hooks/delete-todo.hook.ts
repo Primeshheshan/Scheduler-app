@@ -1,7 +1,5 @@
 import axios from '@/api/axios';
-import { RootState } from '@/redux';
 import { useEffect, useRef } from 'react';
-import { useSelector } from 'react-redux';
 
 const useDeleteTodo = () => {
   const accessToken = useRef("");
