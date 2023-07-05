@@ -8,6 +8,7 @@ import {
   getDoneTodos,
   getTodoCount,
 } from '../controllers/todo.js';
+import verifyJWT from '../middleware/verifyJWT.js';
 
 const router = express.Router();
 

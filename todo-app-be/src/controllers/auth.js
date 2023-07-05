@@ -1,0 +1,141 @@
+import User from '../models/user.js';
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+import * as dotenv from 'dotenv';
+import { HttpException } from '../httpExceptions/http.exception.js';
+
+dotenv.config();
+
+export const registerUser = async (req, res, next) => {
+  try {
+    const { name, username, password } = req.body;
+    const existUser = await User.findOne({ username });
+
+    if (existUser)
+      return res
+        .status(409) // conflict
+        .json({ message: 'Username already exists' });
+
+    //create jwt
+    const accessToken = jwt.sign(
+      { username: username },
+      process.env.ACCESS_TOKEN_SECRET,
+      { expiresIn: '60s' }
+    );
+    const refreshToken = jwt.sign(
+      { username: username },
+      process.env.REFRESH_TOKEN_SECRET,
+      { expiresIn: '1d' }
+    );
+
+    const user = new User({ name, username, password, refreshToken });
+    await user.save();
+
+    res.cookie('jwt', refreshToken, {
+      httpOnly: true,
+      maxAge: 24 * 3600000, // cookie will be expires after 1 day
+    });
+
+    res.json({ accessToken });
+  } catch (error) {
+    console.log(`An error occurred ${error}`);
+  }
+};
+
+export const loginUser = async (req, res) => {
+  try {
+    const { username, password } = req.body;
+    const user = await User.findOne({ username });
+
+    if (!username || !password)
+      return res
+        .status(400) // bad Request
+        .json({ message: 'Username and password are required' });
+
+    if (!user) {
+      return res.sendStatus(401); // unauthorized
+    }
+
+    const match = await bcrypt.compare(password, user.password);
+
+    if (match) {
+      //create jwt
+      const accessToken = jwt.sign(
+        { username: user.username },
+        process.env.ACCESS_TOKEN_SECRET,
+        { expiresIn: '60s' }
+      );
+      const refreshToken = jwt.sign(
+        { username: user.username },
+        process.env.REFRESH_TOKEN_SECRET,
+        { expiresIn: '1d' }
+      );
+
+      await User.findByIdAndUpdate(
+        user._id,
+        { $set: { refreshToken } },
+        { new: true }
+      );
+
+      res.cookie('jwt', refreshToken, {
+        httpOnly: true,
+        maxAge: 24 * 3600000, // cookie will be expires after 1 day
+      });
+      res.json({ accessToken });
+    } else {
+      res.sendStatus(401);
+    }
+  } catch (error) {
+    console.log(`An error occurred ${error}`);
+  }
+};
+
+export const getAccessToken = async (req, res) => {
+  const cookies = req.cookies;
+
+  if (!cookies?.jwt) return res.sendStatus(401); // unauthorized
+
+  const refreshToken = cookies?.jwt;
+
+  const user = await User.findOne({ refreshToken });
+  if (!user) {
+    return res.sendStatus(403);
+  }
+
+  // evaluate jwt
+  jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, decoded) => {
+    if (err || user.username !== decoded.username) return res.sendStatus(403);
+
+    const accessToken = jwt.sign(
+      { username: decoded.username },
+      process.env.ACCESS_TOKEN_SECRET,
+      { expiresIn: '60s' }
+    );
+
+    res.json({ accessToken });
+  });
+};
+
+export const logoutUser = async (req, res) => {
+  const cookies = req.cookies;
+
+  if (!cookies?.jwt) return res.sendStatus(204); // unauthorized
+
+  const refreshToken = cookies?.jwt;
+
+  //is refresh token in the db
+  const user = await User.findOne({ refreshToken });
+  if (!user) {
+    res.clearCookie('jwt', { httpOnly: true });
+    return res.sendStatus(204);
+  }
+
+  // delete refresh token in the db
+  await User.findByIdAndUpdate(
+    user._id,
+    { $set: { refreshToken: '' } },
+    { new: true }
+  );
+  res.clearCookie('jwt', { httpOnly: true, sameSite: 'None', secure: true });
+  res.sendStatus(204);
+};
