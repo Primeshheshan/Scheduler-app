@@ -23,7 +23,6 @@ import {
   Textarea,
   Typography,
 } from '@material-tailwind/react';
-import { current } from '@reduxjs/toolkit';
 import { useFormik } from 'formik';
 import { Inter } from 'next/font/google';
 import { useCallback, useEffect, useRef, useState } from 'react';
