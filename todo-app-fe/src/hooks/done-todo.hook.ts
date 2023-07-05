@@ -1,14 +1,15 @@
 import axios from '@/api/axios';
 import { TodoStatus } from '@/enums/todo.enums';
+import { RootState } from '@/redux';
 import { useEffect, useRef } from 'react';
+import { useSelector } from 'react-redux';
 
 const useDoneTodo = () => {
-  const accessToken = useRef<string | null>('');
-
+  const accessToken = useRef("");
+ 
   useEffect(() => {
-    accessToken.current = localStorage.getItem('accessToken');
-  }, []);
-
+    accessToken.current = localStorage.getItem('accessToken') ?? "";
+ }, []);
   const doneTodo = async (id: string) => {
     try {
       await axios.put(

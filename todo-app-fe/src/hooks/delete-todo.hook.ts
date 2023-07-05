@@ -4,11 +4,11 @@ import { useEffect, useRef } from 'react';
 import { useSelector } from 'react-redux';
 
 const useDeleteTodo = () => {
-  const accessToken = useRef<string | null>('');
+  const accessToken = useRef("");
 
   useEffect(() => {
-    accessToken.current = localStorage.getItem('accessToken');
-  }, []);
+    accessToken.current = localStorage.getItem('accessToken') ?? "";
+ }, []);
 
   const deleteTodo = async (id: string) => {
     try {

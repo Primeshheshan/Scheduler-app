@@ -23,6 +23,7 @@ import {
   Textarea,
   Typography,
 } from '@material-tailwind/react';
+import { current } from '@reduxjs/toolkit';
 import { useFormik } from 'formik';
 import { Inter } from 'next/font/google';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -42,6 +43,11 @@ export default function Home() {
   const { deleteTodo } = useDeleteTodo();
   const { doneTodo } = useDoneTodo();
 
+  useEffect(() => {
+     accessToken.current = localStorage.getItem('accessToken') ?? "";
+  }, []);
+
+
   const fetchTodoCount = useCallback(async () => {
     try {
       const response = await axios.get('todo/count', {
@@ -57,6 +63,11 @@ export default function Home() {
       console.log(error);
     }
   }, [accessToken, dispatch]);
+
+  useEffect(() => {
+    if(accessToken.current !== "") fetchTodoCount()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const addNewTaskValidationSchema = Yup.object().shape({
     title: Yup.string().required('Title is required'),
