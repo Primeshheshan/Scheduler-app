@@ -2,7 +2,6 @@ import axios from '@/api/axios';
 import AlertPopup from '@/components/alert';
 import ErrorMessage from '@/components/errorMessage';
 import useAlert from '@/hooks/alert.hook';
-import { storeUsername } from '@/redux/auth.slice';
 import { Color } from '@/types/alert-color';
 import {
   Card,
@@ -59,7 +58,6 @@ const SingUpPage = () => {
           localStorage.setItem('accessToken', accessToken);
           const username = values.email.split('@')[0];
           localStorage.setItem('username', username);
-          dispatch(storeUsername(username));
           router.push('/');
         }
       } catch (error: any) {
