@@ -1,0 +1,43 @@
+#service configuration
+apiVersion: v1
+kind: Service
+metadata:
+  name: todo-be-service
+spec:
+  selector:
+    app: todo-be
+  ports:
+    - protocol: 'TCP'
+      port: 8080
+      targetPort: 8080
+  type: LoadBalancer
+
+---
+
+# deployment configuration
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: todo-de-deployment
+spec:
+  selector:
+    matchLabels:
+      app: todo-be
+      tier: backend
+  template:
+    metadata:
+      labels:
+        app: todo-be
+        tier: backend
+    spec:
+      containers:
+      - name: todo-be-express
+        image: primesh96/todo-be:latest
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 8080
+
+
