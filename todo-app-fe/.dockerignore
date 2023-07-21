@@ -3,7 +3,10 @@
 .env*
 node_modules
 Dockerfile*
+.dockerignore
 docker-compose*
 README.md
 LICENSE
 .vscode
+/.next/
+/out/
