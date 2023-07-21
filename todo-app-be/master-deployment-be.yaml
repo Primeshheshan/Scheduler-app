@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: backend-se
+  name: backend-service
 spec:
   selector:
     app: todo-be
