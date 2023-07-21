@@ -21,14 +21,6 @@ FROM base as build
 
 RUN npm run build
 
-RUN npm install -g serve@latest
-
-# Expose the port that `serve` will use
-EXPOSE 3000
-
-# Command to run the application using `serve`
-CMD ["npx", "serve@latest", "out"]
-
 # Stage 4: Create the NGINX stage
 FROM nginx:latest as production
 
