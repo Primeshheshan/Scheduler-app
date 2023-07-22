@@ -31,7 +31,7 @@ spec:
     spec:
       terminationGracePeriodSeconds: 30
       containers:
-        - name: frontend
+        - name: frontend-container
           image: primesh96/todo-fe:latest
           imagePullPolicy: Always
           resources:
