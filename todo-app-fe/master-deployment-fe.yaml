@@ -33,7 +33,7 @@ spec:
       containers:
         - name: frontend
           image: primesh96/todo-fe:latest
-          imagePullPolicy: "Always"
+          imagePullPolicy: Always
           resources:
             limits:
               memory: "128Mi"
