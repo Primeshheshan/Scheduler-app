@@ -18,7 +18,7 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: todo-de-deployment
+  name: backend-deployment
 spec:
   selector:
     matchLabels:
@@ -31,7 +31,7 @@ spec:
         tier: backend
     spec:
       containers:
-      - name: todo-be-express
+      - name: backend-container
         image: primesh96/todo-be:latest
         resources:
           limits:
