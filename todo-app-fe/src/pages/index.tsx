@@ -249,7 +249,7 @@ export default function Home() {
           color='blue-gray'
           className='mb-5 text-center'
         >
-          Please add new todo!
+          Please add new todo!!
         </Typography>
       )}
       <AlertPopup
