@@ -250,7 +250,7 @@ export default function Home() {
           color='blue-gray'
           className='mb-5 text-center'
         >
-          No Todos
+          No Todos Found!
         </Typography>
       )}
       <AlertPopup
