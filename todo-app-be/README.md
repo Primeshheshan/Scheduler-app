@@ -1,0 +1,3 @@
+- start minikube => minikube start --driver=docker
+- apply deployment => kubectl apply -f=master-deployment-be.yaml
+- start service => minikube service backend-service
