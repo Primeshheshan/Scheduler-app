@@ -43,9 +43,8 @@ export default function Home() {
   const { doneTodo } = useDoneTodo();
 
   useEffect(() => {
-     accessToken.current = localStorage.getItem('accessToken') ?? "";
+    accessToken.current = localStorage.getItem('accessToken') ?? '';
   }, []);
-
 
   const fetchTodoCount = useCallback(async () => {
     try {
@@ -64,8 +63,8 @@ export default function Home() {
   }, [accessToken, dispatch]);
 
   useEffect(() => {
-    if(accessToken.current !== "") fetchTodoCount()
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (accessToken.current !== '') fetchTodoCount();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const addNewTaskValidationSchema = Yup.object().shape({
@@ -250,7 +249,7 @@ export default function Home() {
           color='blue-gray'
           className='mb-5 text-center'
         >
-          No Todos Found!
+          Please add new todo.
         </Typography>
       )}
       <AlertPopup
