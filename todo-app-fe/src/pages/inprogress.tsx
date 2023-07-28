@@ -1,4 +1,4 @@
-import axios from '@/api/axios';
+import axiosInstance from '@/api/axios';
 import AlertPopup from '@/components/alert';
 import TodoTist from '@/components/todoList';
 import useAlert from '@/hooks/alert.hook';
@@ -12,6 +12,7 @@ import {
 import { Color } from '@/types/alert-color';
 import { ITodoObject } from '@/types/todo-object';
 import { Typography } from '@material-tailwind/react';
+import axios, { CancelToken } from 'axios';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -30,31 +31,39 @@ const InProgress = () => {
 
   const dispatch = useDispatch();
 
-  const fetchInprogressTodos = useCallback(async () => {
-    try {
-      const response = await axios.get('todo/inprogress', {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken.current}`,
-        },
-      });
-      const { inProgressTodos } = response.data;
-      setTodos(inProgressTodos);
-    } catch (error) {
-      if (!accessToken.current) {
-        showAlert('Please login using username and password!', '', 'red');
-      } else {
-        showAlert(
-          'Task fetching failed!',
-          'Opps something went wrong, please try again!',
-          'red'
-        );
+  const fetchInprogressTodos = useCallback(
+    async (cancelToken: CancelToken | undefined) => {
+      try {
+        const response = await axiosInstance.get('todo/inprogress', {
+          cancelToken,
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${accessToken.current}`,
+          },
+        });
+        const { inProgressTodos } = response.data;
+        setTodos(inProgressTodos);
+      } catch (error) {
+        if (!accessToken.current) {
+          showAlert('Please login using username and password!', '', 'red');
+        } else {
+          showAlert(
+            'Task fetching failed!',
+            'Opps something went wrong, please try again!',
+            'red'
+          );
+        }
       }
-    }
-  }, [accessToken, showAlert]);
+    },
+    [accessToken, showAlert]
+  );
 
   useEffect(() => {
-    fetchInprogressTodos();
+    const axiosCancelToken = axios.CancelToken.source();
+    fetchInprogressTodos(axiosCancelToken.token);
+    return () => {
+      axiosCancelToken.cancel();
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -62,7 +71,7 @@ const InProgress = () => {
     try {
       await deleteTodo(id);
       dispatch(decrementImporgressCount());
-      await fetchInprogressTodos();
+      await fetchInprogressTodos(undefined);
     } catch (error) {
       showAlert(
         'Task deleting failed!',
@@ -77,7 +86,7 @@ const InProgress = () => {
       await doneTodo(id);
       dispatch(decrementImporgressCount());
       dispatch(incrementDoneCount());
-      await fetchInprogressTodos();
+      await fetchInprogressTodos(undefined);
     } catch (error) {
       showAlert(
         'Task status change failed!',

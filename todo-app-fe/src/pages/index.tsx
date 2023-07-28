@@ -1,4 +1,4 @@
-import axios from '@/api/axios';
+import axiosInstance from '@/api/axios';
 import AlertPopup from '@/components/alert';
 import ErrorMessage from '@/components/errorMessage';
 import TodoTist from '@/components/todoList';
@@ -23,6 +23,7 @@ import {
   Textarea,
   Typography,
 } from '@material-tailwind/react';
+import axios, { CancelToken } from 'axios';
 import { useFormik } from 'formik';
 import { Inter } from 'next/font/google';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -46,24 +47,32 @@ export default function Home() {
     accessToken.current = localStorage.getItem('accessToken') ?? '';
   }, []);
 
-  const fetchTodoCount = useCallback(async () => {
-    try {
-      const response = await axios.get('todo/count', {
-        withCredentials: true,
-        headers: {
-          Authorization: `Bearer ${accessToken.current}`,
-        },
-      });
-      const { doneCount, inProgressCount } = response?.data;
-      dispatch(incrementInprogressByAmount(inProgressCount));
-      dispatch(incrementDoneByAmount(doneCount));
-    } catch (error) {
-      console.log(error);
-    }
-  }, [accessToken, dispatch]);
+  const fetchTodoCount = useCallback(
+    async (cancelToken: CancelToken | undefined) => {
+      try {
+        const response = await axiosInstance.get('todo/count', {
+          cancelToken,
+          withCredentials: true,
+          headers: {
+            Authorization: `Bearer ${accessToken.current}`,
+          },
+        });
+        const { doneCount, inProgressCount } = response?.data;
+        dispatch(incrementInprogressByAmount(inProgressCount));
+        dispatch(incrementDoneByAmount(doneCount));
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    [accessToken, dispatch]
+  );
 
   useEffect(() => {
-    if (accessToken.current !== '') fetchTodoCount();
+    const axiosCancelToken = axios.CancelToken.source();
+    if (accessToken.current !== '') fetchTodoCount(axiosCancelToken.token);
+    return () => {
+      axiosCancelToken.cancel();
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -71,28 +80,32 @@ export default function Home() {
     title: Yup.string().required('Title is required'),
   });
 
-  const fetchTodos = useCallback(async () => {
-    try {
-      const response = await axios.get('todo', {
-        withCredentials: true,
-        headers: {
-          Authorization: `Bearer ${accessToken.current}`,
-        },
-      });
-      const { allTodos } = response?.data;
-      setTodos(allTodos);
-    } catch (error) {
-      if (!accessToken) {
-        showAlert('Please login using username and password!', '', 'red');
-      } else {
-        showAlert(
-          'Task fetching failed!',
-          'Opps something went wrong, please try again!',
-          'red'
-        );
+  const fetchTodos = useCallback(
+    async (cancelToken: CancelToken | undefined) => {
+      try {
+        const response = await axiosInstance.get('todo', {
+          cancelToken,
+          withCredentials: true,
+          headers: {
+            Authorization: `Bearer ${accessToken.current}`,
+          },
+        });
+        const { allTodos } = response?.data;
+        setTodos(allTodos);
+      } catch (error) {
+        if (!accessToken) {
+          showAlert('Please login using username and password!', '', 'red');
+        } else {
+          showAlert(
+            'Task fetching failed!',
+            'Opps something went wrong, please try again!',
+            'red'
+          );
+        }
       }
-    }
-  }, [accessToken, showAlert]);
+    },
+    [accessToken, showAlert]
+  );
 
   const formik = useFormik({
     initialValues: {
@@ -117,7 +130,7 @@ export default function Home() {
 
   const addTodo = async (title: string, description: string) => {
     try {
-      const response = await axios.post(
+      const response = await axiosInstance.post(
         'todo',
         JSON.stringify({
           title,
@@ -134,7 +147,7 @@ export default function Home() {
       if (response.status === 201) {
         showAlert('Task created successfully!', '', 'green');
       }
-      await fetchTodos();
+      await fetchTodos(undefined);
     } catch (error) {
       showAlert(
         'Task adding failed!',
@@ -147,7 +160,7 @@ export default function Home() {
   const handleDeleteTodo = async (id: string, status: string) => {
     try {
       await deleteTodo(id);
-      await fetchTodos();
+      await fetchTodos(undefined);
       if (status === TodoStatus.IN_PROGRESS) {
         dispatch(decrementImporgressCount());
       } else {
@@ -165,7 +178,7 @@ export default function Home() {
   const handleDoneTodo = async (id: string) => {
     try {
       await doneTodo(id);
-      await fetchTodos();
+      await fetchTodos(undefined);
       dispatch(decrementImporgressCount());
       dispatch(incrementDoneCount());
     } catch (error) {
@@ -182,11 +195,16 @@ export default function Home() {
   }, [dispatch]);
 
   useEffect(() => {
+    const axiosCancelToken = axios.CancelToken.source();
+
     if (!isFetchedData.current) {
-      fetchTodos();
-      fetchTodoCount();
+      fetchTodos(axiosCancelToken.token);
+      fetchTodoCount(undefined);
     }
     isFetchedData.current = true;
+    return () => {
+      axiosCancelToken.cancel();
+    };
   }, [fetchTodos, fetchTodoCount]);
 
   return (

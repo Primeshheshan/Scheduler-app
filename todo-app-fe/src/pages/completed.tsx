@@ -1,4 +1,4 @@
-import axios from '@/api/axios';
+import axiosInstance from '@/api/axios';
 import AlertPopup from '@/components/alert';
 import TodoTist from '@/components/todoList';
 import useAlert from '@/hooks/alert.hook';
@@ -8,6 +8,7 @@ import { decrementDoneCount } from '@/redux/todoCount.slice';
 import { Color } from '@/types/alert-color';
 import { ITodoObject } from '@/types/todo-object';
 import { Typography } from '@material-tailwind/react';
+import axios, { CancelToken } from 'axios';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -23,31 +24,39 @@ const Completed = () => {
     accessToken.current = localStorage.getItem('accessToken');
   }, []);
 
-  const fetchDoneTodos = useCallback(async () => {
-    try {
-      const response = await axios.get('todo/done', {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken.current}`,
-        },
-      });
-      const { doneTodos } = response.data;
-      setTodos(doneTodos);
-    } catch (error) {
-      if (!accessToken.current) {
-        showAlert('Please login using username and password!', '', 'red');
-      } else {
-        showAlert(
-          'Task fetching failed!',
-          'Opps something went wrong, please try again!',
-          'red'
-        );
+  const fetchDoneTodos = useCallback(
+    async (cancelToken: CancelToken | undefined) => {
+      try {
+        const response = await axiosInstance.get('todo/done', {
+          cancelToken,
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${accessToken.current}`,
+          },
+        });
+        const { doneTodos } = response.data;
+        setTodos(doneTodos);
+      } catch (error) {
+        if (!accessToken.current) {
+          showAlert('Please login using username and password!', '', 'red');
+        } else {
+          showAlert(
+            'Task fetching failed!',
+            'Opps something went wrong, please try again!',
+            'red'
+          );
+        }
       }
-    }
-  }, [accessToken, showAlert]);
+    },
+    [accessToken, showAlert]
+  );
 
   useEffect(() => {
-    fetchDoneTodos();
+    const axiosCancelToken = axios.CancelToken.source();
+    fetchDoneTodos(axiosCancelToken.token);
+    return () => {
+      axiosCancelToken.cancel();
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -55,8 +64,7 @@ const Completed = () => {
     try {
       await deleteTodo(id);
       dispatch(decrementDoneCount());
-
-      await fetchDoneTodos();
+      await fetchDoneTodos(undefined);
     } catch (error) {
       showAlert(
         'Task deleting failed!',
