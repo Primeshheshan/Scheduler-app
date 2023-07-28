@@ -1,3 +1,4 @@
-- start minikube => minikube start --driver=docker
-- apply deployment => kubectl apply -f=master-deployment-be.yaml
-- start service => minikube service backend-service
+- start minikube &#8594; minikube start --driver=docker
+- apply deployment &#8594; kubectl apply -f=master-deployment-be.yaml
+- start service &#8594; minikube service backend-service
+- to autoscale the pods &#8594; kubectl autoscale deployment &#60;deployment name&#62; --cpu-percent=50 --min=1 --max=10
