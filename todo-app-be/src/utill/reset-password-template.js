@@ -26,7 +26,7 @@ export const resetPasswordTemplate = (username, resetToken) => {
                                   <span
                                       style=" display:inline-block; vertical-align:middle; margin:29px 0 26px; border-bottom:1px solid #cecece; width:100px; "></span>
                                   <p style="text-align:left; color:#455056; font-size:15px;line-height:24px; margin:0;">
-                                     We received a request to reset your password for your account. If you did not request this change, please ignore this email. Otherwise, please use the following reset token to reset your password
+                                     We received a request to reset your password for your account. If you did not request this change, please ignore this email. Otherwise, please use the following reset token to reset your password.
                                   </p>
                                   <table style="table-layout: fixed; width: 100%; margin:10px 0" >
                                       <tr>

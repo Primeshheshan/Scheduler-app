@@ -14,11 +14,12 @@ import {
 } from '@material-tailwind/react';
 import { useFormik } from 'formik';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import * as Yup from 'yup';
 
 const ResetPassword = () => {
   const { openAlert, alert, showAlert, setOpenAlert } = useAlert();
-
+  const router = useRouter();
   const resetPasswordSchema = Yup.object().shape({
     resetToken: Yup.string().required('Reset token is required'),
     newPassword: Yup.string()
@@ -34,7 +35,6 @@ const ResetPassword = () => {
     validationSchema: resetPasswordSchema,
     onSubmit: async (values: { resetToken: string; newPassword: string }) => {
       try {
-        console.log({ values });
         const response = await axiosInstance.post(
           'auth/reset-password',
           JSON.stringify({
@@ -45,6 +45,14 @@ const ResetPassword = () => {
             headers: { 'Content-Type': 'application/json' },
           }
         );
+        if (response) {
+          showAlert(
+            'Password reset successfully!',
+            `The password for your account has been successfully changed. Your account is now secured with the new password that you have set.`,
+            'green'
+          );
+          router.push('/login');
+        }
       } catch (error: any) {
         const { message } = error.response.data;
         showAlert('reset pasword failed!', `${message}`, 'red');

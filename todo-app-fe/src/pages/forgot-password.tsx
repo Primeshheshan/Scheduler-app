@@ -38,6 +38,13 @@ const ForgotPassword = () => {
             headers: { 'Content-Type': 'application/json' },
           }
         );
+
+        if (response)
+          showAlert(
+            'Email send successfully!',
+            `Check the inbox of the email address you use to reset the password and get the reset token.`,
+            'green'
+          );
       } catch (error: any) {
         const { message } = error.response.data;
         showAlert('Forgot password failed!', `${message}`, 'red');
