@@ -42,7 +42,12 @@ const SpeedDialComponent = () => {
     router.push('/login');
   };
 
-  if (router.asPath === '/login' || router.asPath === '/signup') {
+  if (
+    router.asPath === '/login' ||
+    router.asPath === '/signup' ||
+    router.asPath === '/forgot-password' ||
+    router.asPath === '/reset-password'
+  ) {
     return null;
   }
 

@@ -1,9 +1,8 @@
-import User from '../models/user.js';
 import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
 import * as dotenv from 'dotenv';
+import jwt from 'jsonwebtoken';
 import nodemailer from 'nodemailer';
-import cripto from 'crypto';
+import User from '../models/user.js';
 dotenv.config();
 
 export const registerUser = async (req, res, next) => {
@@ -129,7 +128,7 @@ export const logoutUser = async (req, res) => {
   try {
     const cookies = req.cookies;
 
-    if (!cookies?.jwt) return res.sendStatus(204); // unauthorized
+    if (!cookies?.jwt) return res.sendStatus(204); // no content
 
     const refreshToken = cookies?.jwt;
 
@@ -143,17 +142,17 @@ export const logoutUser = async (req, res) => {
     // delete refresh token in the db
     await User.findByIdAndUpdate(
       user._id,
-      { $set: { refreshToken: '' } },
+      { $set: { refreshToken: undefined } },
       { new: true }
     );
     res.clearCookie('jwt', { httpOnly: true, sameSite: 'None', secure: true });
-    res.sendStatus(204);
+    res.status(200).json({ message: 'Logout successful' });
   } catch (error) {
     console.log(`An error occurred ${error}`);
   }
 };
 
-export const sendMailToUser = async (req, res) => {
+export const forgotPassword = async (req, res) => {
   try {
     const { username } = req.body;
 
@@ -181,9 +180,9 @@ export const sendMailToUser = async (req, res) => {
     });
 
     const mailOptions = {
-      from: `"Todo App ✔" ${process.env.USER_EMAIL}`, // sender address
+      from: `Todo App ✔" ${process.env.USER_EMAIL}`, // sender address
       // to: username,
-      to: 'nedak11382@inkiny.com',
+      to: 'yihonaj297@kkoup.com',
       subject: 'Password Reset Request', // Subject line
       html: `
       <body marginheight="0" topmargin="0" marginwidth="0" style="margin: 0px; background-color: #f2f3f8;" leftmargin="0">
@@ -217,7 +216,7 @@ export const sendMailToUser = async (req, res) => {
 										<table style="table-layout: fixed; width: 100%; margin:10px 0" >
 											<tr>
 												<td style="vertical-align: top;width: 20%;">Reset Token:</td>
-												<td style="word-wrap: break-word; text-align:left;">${resetToken}</td>
+												<td style="word-wrap: break-word; text-align:left;"><strong>${resetToken}</strong></td>
 											</tr>
 										</table>
 										<p style="text-align:left; color:#455056; font-size:15px;line-height:24px; margin:0;">This token will expire in one hour from the time of the request.</p>
@@ -254,10 +253,44 @@ export const sendMailToUser = async (req, res) => {
         console.log('Email sent: ' + info.response);
         console.log('Message ID:', info.messageId);
         return res.status(200).json({
-          message: 'Email send successfully',
-          preview: nodemailer.getTestMessageUrl(info),
+          message: 'Email sending successful',
         });
       }
     });
-  } catch (error) {}
+  } catch (error) {
+    console.log(`An error occurred ${error}`);
+  }
+};
+
+export const resetPassword = async (req, res) => {
+  try {
+    const { resetToken, newPassword } = req.body;
+
+    const user = await User.findOne({
+      resetToken,
+    });
+
+    if (!user) {
+      return res
+        .status(400)
+        .json({ message: 'Invalid or expired reset token' });
+    }
+
+    // Check if the reset token is not expired
+    jwt.verify(resetToken, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+      if (err)
+        return res
+          .status(400)
+          .json({ message: 'Invalid or expired reset token' });
+    });
+
+    // Update the user's password and reset token fields
+    user.password = newPassword;
+    user.resetToken = undefined;
+    await user.save();
+
+    res.status(200).json({ message: 'Password reset successful' });
+  } catch (error) {
+    console.log(`An error occurred ${error}`);
+  }
 };
