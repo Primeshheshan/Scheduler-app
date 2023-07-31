@@ -3,6 +3,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import * as dotenv from 'dotenv';
 import nodemailer from 'nodemailer';
+import cripto from 'crypto';
 dotenv.config();
 
 export const registerUser = async (req, res, next) => {
@@ -154,6 +155,23 @@ export const logoutUser = async (req, res) => {
 
 export const sendMailToUser = async (req, res) => {
   try {
+    const { username } = req.body;
+
+    // Check if the user with the provided email exists
+    const user = await User.findOne({ username });
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    // generate a unique reset token and set an expiry date
+    const resetToken = jwt.sign({ username }, process.env.ACCESS_TOKEN_SECRET, {
+      expiresIn: '1h',
+    });
+
+    // store the reset token and expiry date in the user's document
+    user.resetToken = resetToken;
+    await user.save();
+
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
@@ -163,11 +181,69 @@ export const sendMailToUser = async (req, res) => {
     });
 
     const mailOptions = {
-      from: `"Todo APP ✔" ${process.env.USER_EMAIL}`, // sender address
-      to: 'niligi1198@inkiny.com', // list of receivers
-      subject: 'Hello ', // Subject line
-      text: 'Hello world?', // plain text body
-      html: '<b>Hello world?</b>', // html body
+      from: `"Todo App ✔" ${process.env.USER_EMAIL}`, // sender address
+      // to: username,
+      to: 'nedak11382@inkiny.com',
+      subject: 'Password Reset Request', // Subject line
+      html: `
+      <body marginheight="0" topmargin="0" marginwidth="0" style="margin: 0px; background-color: #f2f3f8;" leftmargin="0">
+	<!--100% body table-->
+	<table cellspacing="0" border="0" cellpadding="0" width="100%" bgcolor="#f2f3f8"
+        style="@import url(https://fonts.googleapis.com/css?family=Rubik:300,400,500,700|Open+Sans:300,400,600,700); font-family: 'Open Sans', sans-serif;">
+		<tr>
+			<td>
+				<table style="background-color: #f2f3f8; max-width:670px;  margin:0 auto;" width="100%" border="0"
+                    align="center" cellpadding="0" cellspacing="0">
+					<tr>
+						<td style="height:20px;">&nbsp;</td>
+					</tr>
+					<tr>
+						<td>
+							<table width="95%" border="0" align="center" cellpadding="0" cellspacing="0"
+                                style="text-align:center; max-width:670px;background:#fff; border-radius:3px; -webkit-box-shadow:0 6px 18px 0 rgba(0,0,0,.06);-moz-box-shadow:0 6px 18px 0 rgba(0,0,0,.06);box-shadow:0 6px 18px 0 rgba(0,0,0,.06);">
+								<tr>
+									<td style="height:20px; text-align:left; padding:15px 35px">Hello ${user.name},</td>
+								</tr>
+								
+								<tr>
+									<td style="padding:0 35px;">
+										<h1 style="color:#1e1e2d; font-weight:500; margin:0;font-size:32px;font-family:'Rubik',sans-serif; text-align:center;">You have
+                                            requested to reset your password</h1>
+										<span
+                                            style=" display:inline-block; vertical-align:middle; margin:29px 0 26px; border-bottom:1px solid #cecece; width:100px; "></span>
+										<p style="text-align:left; color:#455056; font-size:15px;line-height:24px; margin:0;">
+                                           We received a request to reset your password for your account. If you did not request this change, please ignore this email. Otherwise, please use the following reset token to reset your password
+                                        </p>
+										<table style="table-layout: fixed; width: 100%; margin:10px 0" >
+											<tr>
+												<td style="vertical-align: top;width: 20%;">Reset Token:</td>
+												<td style="word-wrap: break-word; text-align:left;">${resetToken}</td>
+											</tr>
+										</table>
+										<p style="text-align:left; color:#455056; font-size:15px;line-height:24px; margin:0;">This token will expire in one hour from the time of the request.</p>
+									</td>
+								</tr>
+								<tr>
+									<td style="height:80px; text-align:left;padding:15px 35px">
+							    Best regards
+							    
+										<span style='display:block;'>Todo App Team</span>
+									</td>
+								</tr>
+							</table>
+						</td>
+						<tr>
+							<td style="height:20px;">&nbsp;</td>
+						</tr>
+						<tr>
+							<td style="height:80px;">&nbsp;</td>
+						</tr>
+					</table>
+				</td>
+			</tr>
+		</table>
+		<!--/100% body table-->
+	</body>`, // html body
     };
 
     // send mail with defined transport object
