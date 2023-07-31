@@ -2,8 +2,7 @@ import User from '../models/user.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import * as dotenv from 'dotenv';
-import { HttpException } from '../httpExceptions/http.exception.js';
-
+import nodemailer from 'nodemailer';
 dotenv.config();
 
 export const registerUser = async (req, res, next) => {
@@ -91,51 +90,98 @@ export const loginUser = async (req, res) => {
 };
 
 export const getAccessToken = async (req, res) => {
-  const cookies = req.cookies;
+  try {
+    const cookies = req.cookies;
 
-  if (!cookies?.jwt) return res.sendStatus(401); // unauthorized
+    if (!cookies?.jwt) return res.sendStatus(401); // unauthorized
 
-  const refreshToken = cookies?.jwt;
+    const refreshToken = cookies?.jwt;
 
-  const user = await User.findOne({ refreshToken });
-  if (!user) {
-    return res.sendStatus(403);
-  }
+    const user = await User.findOne({ refreshToken });
+    if (!user) {
+      return res.sendStatus(403);
+    }
 
-  // evaluate jwt
-  jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, decoded) => {
-    if (err || user.username !== decoded.username) return res.sendStatus(403);
+    // evaluate jwt
+    jwt.verify(
+      refreshToken,
+      process.env.REFRESH_TOKEN_SECRET,
+      (err, decoded) => {
+        if (err || user.username !== decoded.username)
+          return res.sendStatus(403);
 
-    const accessToken = jwt.sign(
-      { username: decoded.username },
-      process.env.ACCESS_TOKEN_SECRET,
-      { expiresIn: '60s' }
+        const accessToken = jwt.sign(
+          { username: decoded.username },
+          process.env.ACCESS_TOKEN_SECRET,
+          { expiresIn: '60s' }
+        );
+
+        res.json({ accessToken });
+      }
     );
-
-    res.json({ accessToken });
-  });
+  } catch (error) {
+    console.log(`An error occurred ${error}`);
+  }
 };
 
 export const logoutUser = async (req, res) => {
-  const cookies = req.cookies;
+  try {
+    const cookies = req.cookies;
 
-  if (!cookies?.jwt) return res.sendStatus(204); // unauthorized
+    if (!cookies?.jwt) return res.sendStatus(204); // unauthorized
 
-  const refreshToken = cookies?.jwt;
+    const refreshToken = cookies?.jwt;
 
-  //is refresh token in the db
-  const user = await User.findOne({ refreshToken });
-  if (!user) {
-    res.clearCookie('jwt', { httpOnly: true });
-    return res.sendStatus(204);
+    //is refresh token in the db
+    const user = await User.findOne({ refreshToken });
+    if (!user) {
+      res.clearCookie('jwt', { httpOnly: true });
+      return res.sendStatus(204);
+    }
+
+    // delete refresh token in the db
+    await User.findByIdAndUpdate(
+      user._id,
+      { $set: { refreshToken: '' } },
+      { new: true }
+    );
+    res.clearCookie('jwt', { httpOnly: true, sameSite: 'None', secure: true });
+    res.sendStatus(204);
+  } catch (error) {
+    console.log(`An error occurred ${error}`);
   }
+};
 
-  // delete refresh token in the db
-  await User.findByIdAndUpdate(
-    user._id,
-    { $set: { refreshToken: '' } },
-    { new: true }
-  );
-  res.clearCookie('jwt', { httpOnly: true, sameSite: 'None', secure: true });
-  res.sendStatus(204);
+export const sendMailToUser = async (req, res) => {
+  try {
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.USER_EMAIL,
+        pass: process.env.USER_EMAIL_PASSWORD,
+      },
+    });
+
+    const mailOptions = {
+      from: `"Todo APP ✔" ${process.env.USER_EMAIL}`, // sender address
+      to: 'niligi1198@inkiny.com', // list of receivers
+      subject: 'Hello ', // Subject line
+      text: 'Hello world?', // plain text body
+      html: '<b>Hello world?</b>', // html body
+    };
+
+    // send mail with defined transport object
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.log(error);
+      } else {
+        console.log('Email sent: ' + info.response);
+        console.log('Message ID:', info.messageId);
+        return res.status(200).json({
+          message: 'Email send successfully',
+          preview: nodemailer.getTestMessageUrl(info),
+        });
+      }
+    });
+  } catch (error) {}
 };

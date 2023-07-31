@@ -1,6 +1,6 @@
+import mongoose from 'mongoose';
 import { TodoStatus } from '../enums/todo-status.enum.js';
 import Todo from '../models/todo.js';
-import mongoose from 'mongoose';
 
 export const addTodo = async (req, res) => {
   try {
