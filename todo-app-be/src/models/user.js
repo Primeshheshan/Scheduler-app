@@ -17,6 +17,10 @@ const userSchema = new Schema({
     type: String,
     require: true,
   },
+  phoneNumber: {
+    type: Number,
+    require: true,
+  },
   refreshToken: {
     type: String,
     require: false,

@@ -18,12 +18,17 @@ import * as Yup from 'yup';
 
 const SingUpPage = () => {
   const router = useRouter();
-  const dispatch = useDispatch();
   const { openAlert, alert, showAlert, setOpenAlert } = useAlert();
+  const phoneRegExp =
+    /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/;
 
   const SignupSchema = Yup.object().shape({
     name: Yup.string().required('Name is required'),
     email: Yup.string().email('Invalid email').required('Email is required'),
+    phoneNumber: Yup.string()
+      .matches(phoneRegExp, 'Phone number is not valid')
+      .max(10, 'Phone number is too long - should be 10 maximum')
+      .min(10, 'Phone number is too short - should be 10 minimum'),
     password: Yup.string()
       .required('Password is required')
       .min(4, 'Password is too short - should be 8 chars minimum'),
@@ -33,12 +38,14 @@ const SingUpPage = () => {
     initialValues: {
       name: '',
       email: '',
+      phoneNumber: 0,
       password: '',
     },
     validationSchema: SignupSchema,
     onSubmit: async (values: {
       name: string;
       email: string;
+      phoneNumber: number;
       password: string;
     }) => {
       try {
@@ -48,6 +55,7 @@ const SingUpPage = () => {
             name: values.name,
             username: values.email,
             password: values.password,
+            phoneNumber: values.phoneNumber,
           }),
           {
             headers: { 'Content-Type': 'application/json' },
@@ -108,6 +116,20 @@ const SingUpPage = () => {
                   className='focus:ring-0'
                 />
                 <ErrorMessage message={formik.errors.email} />
+              </div>
+
+              <div>
+                <Input
+                  id='phoneNumber'
+                  size='lg'
+                  label='Phone Number'
+                  required
+                  onChange={formik.handleChange}
+                  value={formik.values.phoneNumber}
+                  error={formik?.errors.phoneNumber ? true : false}
+                  className='focus:ring-0'
+                />
+                <ErrorMessage message={formik.errors.phoneNumber} />
               </div>
 
               <div>

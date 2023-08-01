@@ -8,7 +8,7 @@ dotenv.config();
 
 export const registerUser = async (req, res, next) => {
   try {
-    const { name, username, password } = req.body;
+    const { name, username, password, phoneNumber } = req.body;
     const existUser = await User.findOne({ username });
 
     if (existUser)
@@ -28,7 +28,13 @@ export const registerUser = async (req, res, next) => {
       { expiresIn: '1d' }
     );
 
-    const user = new User({ name, username, password, refreshToken });
+    const user = new User({
+      name,
+      username,
+      password,
+      phoneNumber,
+      refreshToken,
+    });
     await user.save();
 
     res.cookie('jwt', refreshToken, {
