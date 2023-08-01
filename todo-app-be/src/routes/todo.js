@@ -1,14 +1,13 @@
 import express from 'express';
 import {
   addTodo,
-  getAllTodos,
   deleteTodo,
   doneTodo,
-  getInporgressTodos,
+  getAllTodos,
   getDoneTodos,
+  getInporgressTodos,
   getTodoCount,
 } from '../controllers/todo.js';
-import verifyJWT from '../middleware/verifyJWT.js';
 
 const router = express.Router();
 

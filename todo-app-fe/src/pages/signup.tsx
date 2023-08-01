@@ -4,16 +4,15 @@ import ErrorMessage from '@/components/errorMessage';
 import useAlert from '@/hooks/alert.hook';
 import { Color } from '@/types/alert-color';
 import {
-  Card,
-  Input,
-  Checkbox,
   Button,
+  Card,
+  Checkbox,
+  Input,
   Typography,
 } from '@material-tailwind/react';
 import { useFormik } from 'formik';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useDispatch } from 'react-redux';
 import * as Yup from 'yup';
 
 const SingUpPage = () => {

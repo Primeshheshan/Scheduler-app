@@ -4,7 +4,7 @@ import {
   ArrowRightOnRectangleIcon,
   ChevronDownIcon,
   CogIcon,
-  HomeIcon,
+  UserCircleIcon,
 } from '@heroicons/react/24/outline';
 import {
   Avatar,
@@ -84,7 +84,10 @@ const SpeedDialComponent = () => {
       </div>
       <SpeedDialContent>
         <SpeedDialAction className='relative'>
-          <HomeIcon className='h-5 w-5' />
+          <UserCircleIcon
+            className='h-5 w-5'
+            onClick={() => router.push('/profile')}
+          />
           <Typography {...labelProps}>Profile</Typography>
         </SpeedDialAction>
         <SpeedDialAction className='relative'>
