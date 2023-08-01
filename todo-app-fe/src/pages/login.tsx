@@ -47,11 +47,6 @@ const LoginPage = () => {
           localStorage.setItem('username', username);
           router.push('/');
         }
-        showAlert(
-          'Login failed!',
-          'Please check your username and password.',
-          'red'
-        );
       } catch (error: any) {
         const { message } = error.response.data;
         showAlert('Account creation failed!', `${message}`, 'red');
