@@ -17,7 +17,20 @@ const userSchema = new Schema({
     type: String,
     require: true,
   },
+  phoneNumber: {
+    type: String,
+    require: true,
+  },
+  isPhoneNumberVerified: {
+    type: Boolean,
+    require: true,
+    default: false,
+  },
   refreshToken: {
+    type: String,
+    require: false,
+  },
+  resetToken: {
     type: String,
     require: false,
   },

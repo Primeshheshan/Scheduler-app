@@ -4,6 +4,7 @@ import mongoose from 'mongoose';
 import bodyParser from 'body-parser';
 import authRoutes from './src/routes/auth.js';
 import todoRoutes from './src/routes/todo.js';
+import userRoutes from './src/routes/user.js';
 import cors from 'cors';
 import verifyJWT from './src/middleware/verifyJWT.js';
 import cookieParser from 'cookie-parser';
@@ -26,6 +27,7 @@ app.use('/api/v1/auth', authRoutes);
 
 app.use(verifyJWT);
 app.use('/api/v1/todo', todoRoutes);
+app.use('/api/v1/user', userRoutes);
 
 app.use((error, req, res, next) => {
   res.status(500).json({ message: error.message });

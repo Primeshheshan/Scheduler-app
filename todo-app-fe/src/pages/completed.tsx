@@ -1,15 +1,14 @@
-import axios from '@/api/axios';
+import axiosInstance from '@/api/axios';
 import AlertPopup from '@/components/alert';
 import TodoTist from '@/components/todoList';
 import useAlert from '@/hooks/alert.hook';
 import useDeleteTodo from '@/hooks/delete-todo.hook';
-import { RootState } from '@/redux';
 import { decrementDoneCount } from '@/redux/todoCount.slice';
 import { Color } from '@/types/alert-color';
 import { ITodoObject } from '@/types/todo-object';
 import { Typography } from '@material-tailwind/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 
 const Completed = () => {
   const [todosArray, setTodos] = useState<ITodoObject[]>([]);
@@ -25,7 +24,7 @@ const Completed = () => {
 
   const fetchDoneTodos = useCallback(async () => {
     try {
-      const response = await axios.get('todo/done', {
+      const response = await axiosInstance.get('todo/done', {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${accessToken.current}`,
@@ -55,7 +54,6 @@ const Completed = () => {
     try {
       await deleteTodo(id);
       dispatch(decrementDoneCount());
-
       await fetchDoneTodos();
     } catch (error) {
       showAlert(

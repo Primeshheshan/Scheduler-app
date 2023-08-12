@@ -4,7 +4,7 @@ import {
   ArrowRightOnRectangleIcon,
   ChevronDownIcon,
   CogIcon,
-  HomeIcon,
+  UserCircleIcon,
 } from '@heroicons/react/24/outline';
 import {
   Avatar,
@@ -26,7 +26,7 @@ const SpeedDialComponent = () => {
 
   useEffect(() => {
     accessToken.current = localStorage.getItem('accessToken');
-  }, []);
+  });
 
   const labelProps = {
     variant: 'small',
@@ -42,7 +42,12 @@ const SpeedDialComponent = () => {
     router.push('/login');
   };
 
-  if (router.asPath === '/login' || router.asPath === '/signup') {
+  if (
+    router.asPath === '/login' ||
+    router.asPath === '/signup' ||
+    router.asPath === '/forgot-password' ||
+    router.asPath === '/reset-password'
+  ) {
     return null;
   }
 
@@ -79,7 +84,10 @@ const SpeedDialComponent = () => {
       </div>
       <SpeedDialContent>
         <SpeedDialAction className='relative'>
-          <HomeIcon className='h-5 w-5' />
+          <UserCircleIcon
+            className='h-5 w-5'
+            onClick={() => router.push('/profile')}
+          />
           <Typography {...labelProps}>Profile</Typography>
         </SpeedDialAction>
         <SpeedDialAction className='relative'>

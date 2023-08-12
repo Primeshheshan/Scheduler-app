@@ -1,4 +1,4 @@
-import axios from '@/api/axios';
+import axiosInstance from '@/api/axios';
 import AlertPopup from '@/components/alert';
 import ErrorMessage from '@/components/errorMessage';
 import TodoTist from '@/components/todoList';
@@ -23,6 +23,7 @@ import {
   Textarea,
   Typography,
 } from '@material-tailwind/react';
+import axios, { CancelToken } from 'axios';
 import { useFormik } from 'formik';
 import { Inter } from 'next/font/google';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -48,7 +49,7 @@ export default function Home() {
 
   const fetchTodoCount = useCallback(async () => {
     try {
-      const response = await axios.get('todo/count', {
+      const response = await axiosInstance.get('todo/count', {
         withCredentials: true,
         headers: {
           Authorization: `Bearer ${accessToken.current}`,
@@ -64,6 +65,7 @@ export default function Home() {
 
   useEffect(() => {
     if (accessToken.current !== '') fetchTodoCount();
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -73,7 +75,7 @@ export default function Home() {
 
   const fetchTodos = useCallback(async () => {
     try {
-      const response = await axios.get('todo', {
+      const response = await axiosInstance.get('todo', {
         withCredentials: true,
         headers: {
           Authorization: `Bearer ${accessToken.current}`,
@@ -117,7 +119,7 @@ export default function Home() {
 
   const addTodo = async (title: string, description: string) => {
     try {
-      const response = await axios.post(
+      const response = await axiosInstance.post(
         'todo',
         JSON.stringify({
           title,

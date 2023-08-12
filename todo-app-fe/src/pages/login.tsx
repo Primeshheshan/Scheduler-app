@@ -7,12 +7,10 @@ import { Button, Card, Input, Typography } from '@material-tailwind/react';
 import { useFormik } from 'formik';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useDispatch } from 'react-redux';
 import * as Yup from 'yup';
 
 const LoginPage = () => {
   const { openAlert, alert, showAlert, setOpenAlert } = useAlert();
-  const dispatch = useDispatch();
 
   const router = useRouter();
 

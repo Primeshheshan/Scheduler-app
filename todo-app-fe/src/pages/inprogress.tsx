@@ -1,4 +1,4 @@
-import axios from '@/api/axios';
+import axiosInstance from '@/api/axios';
 import AlertPopup from '@/components/alert';
 import TodoTist from '@/components/todoList';
 import useAlert from '@/hooks/alert.hook';
@@ -12,6 +12,7 @@ import {
 import { Color } from '@/types/alert-color';
 import { ITodoObject } from '@/types/todo-object';
 import { Typography } from '@material-tailwind/react';
+import axios, { CancelToken } from 'axios';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -32,7 +33,7 @@ const InProgress = () => {
 
   const fetchInprogressTodos = useCallback(async () => {
     try {
-      const response = await axios.get('todo/inprogress', {
+      const response = await axiosInstance.get('todo/inprogress', {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${accessToken.current}`,
@@ -54,7 +55,11 @@ const InProgress = () => {
   }, [accessToken, showAlert]);
 
   useEffect(() => {
+    const axiosCancelToken = axios.CancelToken.source();
     fetchInprogressTodos();
+    return () => {
+      axiosCancelToken.cancel();
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

@@ -1,6 +1,6 @@
+import mongoose from 'mongoose';
 import { TodoStatus } from '../enums/todo-status.enum.js';
 import Todo from '../models/todo.js';
-import mongoose from 'mongoose';
 
 export const addTodo = async (req, res) => {
   try {
@@ -37,7 +37,7 @@ export const deleteTodo = async (req, res) => {
 
     // Check if the ID is a valid MongoDB ObjectID
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ message: 'Invalid object ID' });
+      return res.status(400).json({ message: 'Invalid object Id' });
     }
 
     // Find and delete the Todo by its ID
@@ -60,7 +60,7 @@ export const doneTodo = async (req, res) => {
 
     // Check if the ID is a valid MongoDB ObjectID
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ message: 'Invalid object ID' });
+      return res.status(400).json({ message: 'Invalid object Id' });
     }
 
     // Find and update the Todo by its ID
