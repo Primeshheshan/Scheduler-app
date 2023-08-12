@@ -1,10 +1,10 @@
 import express from 'express';
 import {
-  loginUser,
-  registerUser,
-  getAccessToken,
-  logoutUser,
   forgotPassword,
+  getAccessToken,
+  loginUser,
+  logoutUser,
+  registerUser,
   resetPassword,
 } from '../controllers/auth.js';
 

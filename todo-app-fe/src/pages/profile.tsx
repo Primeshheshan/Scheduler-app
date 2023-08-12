@@ -1,5 +1,6 @@
 import axiosInstance from '@/api/axios';
 import ErrorMessage from '@/components/errorMessage';
+import OTPDialog from '@/components/otp-dialog';
 import useAlert from '@/hooks/alert.hook';
 import {
   Avatar,
@@ -29,6 +30,9 @@ export default function CheckoutForm() {
   const [type, setType] = React.useState('profile');
   const { openAlert, alert, showAlert, setOpenAlert } = useAlert();
   const accessToken = useRef<string | null>('');
+  const username = useRef<string | null>('');
+  const [openDialog, setOpenDialog] = useState(false);
+  const [phoneNumberVerified, setPhoneNumberVerified] = useState(false);
   const [user, setUser] = useState<User>({
     username: '',
     name: '',
@@ -40,9 +44,8 @@ export default function CheckoutForm() {
   const SignupSchema = Yup.object().shape({
     name: Yup.string().required('Name is required'),
     phoneNumber: Yup.string()
-      .matches(phoneRegExp, 'Phone number is not valid')
-      .max(9, 'Phone number is too long - should be 10 maximum')
-      .min(9, 'Phone number is too short - should be 10 minimum'),
+      .max(12, 'Phone number is too long - should be 12 maximum')
+      .min(12, 'Phone number is too short - should be 12 minimum'),
   });
 
   const formik = useFormik({
@@ -67,6 +70,9 @@ export default function CheckoutForm() {
             },
           }
         );
+        if (response) {
+          console.log(response);
+        }
       } catch (error: any) {
         const { message } = error.response.data;
         showAlert('Account creation failed!', `${message}`, 'red');
@@ -78,6 +84,7 @@ export default function CheckoutForm() {
 
   useEffect(() => {
     accessToken.current = localStorage.getItem('accessToken') ?? '';
+    username.current = localStorage.getItem('username') ?? '';
   }, []);
 
   const getProfile = useCallback(async () => {
@@ -88,11 +95,16 @@ export default function CheckoutForm() {
       },
     });
     setUser(response?.data.user);
+    setPhoneNumberVerified(
+      response?.data?.user?.isPhoneNumberVerified ?? false
+    );
   }, []);
 
   useEffect(() => {
     getProfile();
   }, [getProfile]);
+
+  const handleVerifyContactNumber = () => setOpenDialog(!openDialog);
 
   return (
     <div className='flex justify-center mt-8 p-6'>
@@ -105,7 +117,7 @@ export default function CheckoutForm() {
         >
           <Avatar src='/profile.jpg' alt='avatar' className='w-24 h-24' />
           <Typography variant='h4' color='white'>
-            {'dojo'}
+            {username.current ?? ''}
           </Typography>
         </CardHeader>
         <CardBody>
@@ -143,7 +155,7 @@ export default function CheckoutForm() {
                         id='name'
                         size='lg'
                         label='Name'
-                        value={user?.name}
+                        value={user?.name ?? ''}
                         disabled
                         className='focus:ring-0'
                       />
@@ -154,7 +166,7 @@ export default function CheckoutForm() {
                         id='email'
                         size='lg'
                         label='Email'
-                        value={user?.username}
+                        value={user?.username ?? ''}
                         disabled
                         className='focus:ring-0'
                       />
@@ -165,7 +177,7 @@ export default function CheckoutForm() {
                         id='phoneNumber'
                         size='lg'
                         label='Phone Number'
-                        value={user?.phoneNumber}
+                        value={user?.phoneNumber ?? 0}
                         disabled
                         className='focus:ring-0'
                       />
@@ -185,24 +197,43 @@ export default function CheckoutForm() {
                         size='lg'
                         label='Name'
                         onChange={formik.handleChange}
-                        value={formik?.values.name}
+                        value={formik?.values.name ?? ''}
                         error={formik?.errors.name ? true : false}
                         className='focus:ring-0'
                       />
                       <ErrorMessage message={formik.errors.name} />
                     </div>
 
-                    <div>
+                    <div className='relative flex w-full max-w-[24rem]'>
                       <Input
                         id='phoneNumber'
                         size='lg'
                         label='Phone Number'
                         required
                         onChange={formik.handleChange}
-                        value={formik.values.phoneNumber}
+                        value={formik.values.phoneNumber ?? 0}
                         error={formik?.errors.phoneNumber ? true : false}
                         className='focus:ring-0'
                       />
+                      {!phoneNumberVerified ? (
+                        <Button
+                          onClick={handleVerifyContactNumber}
+                          size='sm'
+                          color={'green'}
+                          className='!absolute right-1 top-1.5 rounded'
+                        >
+                          Verify
+                        </Button>
+                      ) : (
+                        <Button
+                          size='sm'
+                          disabled
+                          color={'green'}
+                          className='!absolute right-1 top-1.5 rounded'
+                        >
+                          Verified
+                        </Button>
+                      )}
                       <ErrorMessage message={formik.errors.phoneNumber} />
                     </div>
                   </div>
@@ -216,6 +247,12 @@ export default function CheckoutForm() {
           </Tabs>
         </CardBody>
       </Card>
+      <OTPDialog
+        openDialog={openDialog}
+        handler={handleVerifyContactNumber}
+        phoneNumber={`${formik.values.phoneNumber}`}
+        verified={setPhoneNumberVerified}
+      />
     </div>
   );
 }

@@ -26,7 +26,7 @@ const SpeedDialComponent = () => {
 
   useEffect(() => {
     accessToken.current = localStorage.getItem('accessToken');
-  }, []);
+  });
 
   const labelProps = {
     variant: 'small',

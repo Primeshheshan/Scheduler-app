@@ -3,14 +3,12 @@ import AlertPopup from '@/components/alert';
 import TodoTist from '@/components/todoList';
 import useAlert from '@/hooks/alert.hook';
 import useDeleteTodo from '@/hooks/delete-todo.hook';
-import { RootState } from '@/redux';
 import { decrementDoneCount } from '@/redux/todoCount.slice';
 import { Color } from '@/types/alert-color';
 import { ITodoObject } from '@/types/todo-object';
 import { Typography } from '@material-tailwind/react';
-import axios, { CancelToken } from 'axios';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 
 const Completed = () => {
   const [todosArray, setTodos] = useState<ITodoObject[]>([]);
@@ -24,39 +22,31 @@ const Completed = () => {
     accessToken.current = localStorage.getItem('accessToken');
   }, []);
 
-  const fetchDoneTodos = useCallback(
-    async (cancelToken: CancelToken | undefined) => {
-      try {
-        const response = await axiosInstance.get('todo/done', {
-          cancelToken,
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${accessToken.current}`,
-          },
-        });
-        const { doneTodos } = response.data;
-        setTodos(doneTodos);
-      } catch (error) {
-        if (!accessToken.current) {
-          showAlert('Please login using username and password!', '', 'red');
-        } else {
-          showAlert(
-            'Task fetching failed!',
-            'Opps something went wrong, please try again!',
-            'red'
-          );
-        }
+  const fetchDoneTodos = useCallback(async () => {
+    try {
+      const response = await axiosInstance.get('todo/done', {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken.current}`,
+        },
+      });
+      const { doneTodos } = response.data;
+      setTodos(doneTodos);
+    } catch (error) {
+      if (!accessToken.current) {
+        showAlert('Please login using username and password!', '', 'red');
+      } else {
+        showAlert(
+          'Task fetching failed!',
+          'Opps something went wrong, please try again!',
+          'red'
+        );
       }
-    },
-    [accessToken, showAlert]
-  );
+    }
+  }, [accessToken, showAlert]);
 
   useEffect(() => {
-    const axiosCancelToken = axios.CancelToken.source();
-    fetchDoneTodos(axiosCancelToken.token);
-    return () => {
-      axiosCancelToken.cancel();
-    };
+    fetchDoneTodos();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -64,7 +54,7 @@ const Completed = () => {
     try {
       await deleteTodo(id);
       dispatch(decrementDoneCount());
-      await fetchDoneTodos(undefined);
+      await fetchDoneTodos();
     } catch (error) {
       showAlert(
         'Task deleting failed!',

@@ -25,9 +25,8 @@ const SingUpPage = () => {
     name: Yup.string().required('Name is required'),
     email: Yup.string().email('Invalid email').required('Email is required'),
     phoneNumber: Yup.string()
-      .matches(phoneRegExp, 'Phone number is not valid')
-      .max(10, 'Phone number is too long - should be 10 maximum')
-      .min(10, 'Phone number is too short - should be 10 minimum'),
+      .max(12, 'Phone number is too long - should be 12 maximum')
+      .min(12, 'Phone number is too short - should be 12 minimum'),
     password: Yup.string()
       .required('Password is required')
       .min(4, 'Password is too short - should be 8 chars minimum'),

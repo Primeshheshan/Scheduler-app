@@ -18,8 +18,13 @@ const userSchema = new Schema({
     require: true,
   },
   phoneNumber: {
-    type: Number,
+    type: String,
     require: true,
+  },
+  isPhoneNumberVerified: {
+    type: Boolean,
+    require: true,
+    default: false,
   },
   refreshToken: {
     type: String,

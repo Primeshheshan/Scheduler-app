@@ -31,36 +31,32 @@ const InProgress = () => {
 
   const dispatch = useDispatch();
 
-  const fetchInprogressTodos = useCallback(
-    async (cancelToken: CancelToken | undefined) => {
-      try {
-        const response = await axiosInstance.get('todo/inprogress', {
-          cancelToken,
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${accessToken.current}`,
-          },
-        });
-        const { inProgressTodos } = response.data;
-        setTodos(inProgressTodos);
-      } catch (error) {
-        if (!accessToken.current) {
-          showAlert('Please login using username and password!', '', 'red');
-        } else {
-          showAlert(
-            'Task fetching failed!',
-            'Opps something went wrong, please try again!',
-            'red'
-          );
-        }
+  const fetchInprogressTodos = useCallback(async () => {
+    try {
+      const response = await axiosInstance.get('todo/inprogress', {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken.current}`,
+        },
+      });
+      const { inProgressTodos } = response.data;
+      setTodos(inProgressTodos);
+    } catch (error) {
+      if (!accessToken.current) {
+        showAlert('Please login using username and password!', '', 'red');
+      } else {
+        showAlert(
+          'Task fetching failed!',
+          'Opps something went wrong, please try again!',
+          'red'
+        );
       }
-    },
-    [accessToken, showAlert]
-  );
+    }
+  }, [accessToken, showAlert]);
 
   useEffect(() => {
     const axiosCancelToken = axios.CancelToken.source();
-    fetchInprogressTodos(axiosCancelToken.token);
+    fetchInprogressTodos();
     return () => {
       axiosCancelToken.cancel();
     };
@@ -71,7 +67,7 @@ const InProgress = () => {
     try {
       await deleteTodo(id);
       dispatch(decrementImporgressCount());
-      await fetchInprogressTodos(undefined);
+      await fetchInprogressTodos();
     } catch (error) {
       showAlert(
         'Task deleting failed!',
@@ -86,7 +82,7 @@ const InProgress = () => {
       await doneTodo(id);
       dispatch(decrementImporgressCount());
       dispatch(incrementDoneCount());
-      await fetchInprogressTodos(undefined);
+      await fetchInprogressTodos();
     } catch (error) {
       showAlert(
         'Task status change failed!',

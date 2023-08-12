@@ -1,10 +1,10 @@
+dotenv.config();
 import bcrypt from 'bcrypt';
 import * as dotenv from 'dotenv';
 import jwt from 'jsonwebtoken';
 import nodemailer from 'nodemailer';
 import User from '../models/user.js';
 import { resetPasswordTemplate } from '../utill/reset-password-template.js';
-dotenv.config();
 
 export const registerUser = async (req, res, next) => {
   try {
