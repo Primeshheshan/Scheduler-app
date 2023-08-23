@@ -1,8 +1,15 @@
 # Scheduler App
 
-The Scheduler App is a powerful tool designed to help you manage your tasks efficiently. It leverages various technologies such as Docker, Kubernetes, JWT, MongoDB, React, Redux, Axios, GitHub Actions, and Nodemailer to provide a seamless scheduling experience.
+The Scheduler App is a powerful tool designed to help you manage your tasks efficiently. It leverages various technologies such as Docker, Kubernetes, JWT, MongoDB, Next, Redux, Axios, GitHub Actions, and Nodemailer to provide a seamless scheduling experience.
 
 ![image](https://github.com/Primeshheshan/Scheduler-app/assets/60648856/84a73ade-aa80-4864-8d6c-5ec469ac7dd6)
+
+- **[Features](#features)**
+- **[Technologies Used](#technologies-used)**
+- **[Getting Started](#getting-started)**
+- **[Deployment](#deployment)**
+- **[Contributing](#contributing)**
+- **[License](#license)**
 
 
 ## Features
@@ -23,7 +30,7 @@ The Scheduler App is a powerful tool designed to help you manage your tasks effi
 - **JWT (JSON Web Tokens):** Secure method for user authentication and authorization.
 - **Express:** Backend framework.
 - **MongoDB:** NoSQL database for storing task and user data.
-- **React:** JavaScript library for building user interfaces.
+- **Next:** Next framework for frontend.
 - **Redux:** State management library for maintaining app-wide state.
 - **Axios:** Promise-based HTTP client for making API requests.
 - **GitHub Actions:** Automate workflows for continuous integration and continuous deployment.
