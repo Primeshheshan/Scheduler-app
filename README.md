@@ -2,7 +2,8 @@
 
 The Scheduler App is a powerful tool designed to help you manage your tasks efficiently. It leverages various technologies such as Docker, Kubernetes, JWT, MongoDB, React, Redux, Axios, GitHub Actions, and Nodemailer to provide a seamless scheduling experience.
 
-![Scheduler App Screenshot](screenshot.png)
+![image](https://github.com/Primeshheshan/Scheduler-app/assets/60648856/84a73ade-aa80-4864-8d6c-5ec469ac7dd6)
+
 
 ## Features
 
