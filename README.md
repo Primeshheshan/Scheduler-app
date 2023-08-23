@@ -38,7 +38,7 @@ Follow these steps to get the Scheduler App up and running on your local machine
 4. Install dependencies for the backend: `cd backend && npm install`
 5. Set up MongoDB and update the connection details in the backend configuration.
 6. Start the backend server: `cd backend && npm start`
-7. Start the frontend development server: `cd frontend && npm start`
+7. Start the frontend development server: `cd frontend && npm dev`
 8. Add this environtment variables to your backend .env file
       1. DB_PASSWORD
       2. DB_USERNAME
@@ -55,9 +55,12 @@ Follow these steps to get the Scheduler App up and running on your local machine
 To deploy the Scheduler App, you can follow these steps:
 
 1. Configure your Kubernetes cluster and set up the necessary secrets.
-2. Update the deployment configurations to use your container registry.
-3. Apply the Kubernetes configurations: `kubectl apply -f kubernetes/`
-4. Set up GitHub Actions workflows for automated CI/CD.
+2. start minikube with this code to up kubernetes locally `minikube start --driver=docker
+3. start kubernetes services with this code `minikube service <service name>`
+4. Update the deployment configurations to use your container registry.
+5. Apply the Kubernetes configurations: `kubectl apply -f=<deployment name>.yaml`
+6. To autoscale the pods use this code `kubectl autoscale deployment <deployment name> --cpu-percent=50 --min=1 --max=10`
+7. Set up GitHub Actions workflows for automated CI/CD.
 
 ## Contributing
 
