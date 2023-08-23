@@ -50,16 +50,6 @@ Follow these steps to get the Scheduler App up and running on your local machine
       8. TWILIO_AUTH_TOKEN
       9. TWILIO_SERVICE_SID
 
-
-
-
-
-
-
-
-
-Refer to the specific README files in the `frontend` and `backend` directories for more detailed setup instructions.
-
 ## Deployment
 
 To deploy the Scheduler App, you can follow these steps:
