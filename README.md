@@ -22,6 +22,7 @@ The Scheduler App is a powerful tool designed to help you manage your tasks effi
 - **Database:** Store task and user data in a MongoDB database.
 - **Automated Workflows:** Implement GitHub Actions for CI/CD pipelines.
 - **Email Notifications:** Send task reminders and updates using Nodemailer.
+- **Nginx:** Utilize Nginx as a reverse proxy server for routing.
 
 ## Technologies Used
 
@@ -35,6 +36,7 @@ The Scheduler App is a powerful tool designed to help you manage your tasks effi
 - **Axios:** Promise-based HTTP client for making API requests.
 - **GitHub Actions:** Automate workflows for continuous integration and continuous deployment.
 - **Nodemailer:** Send email notifications to users.
+- **Nginx:** High-performance web server and reverse proxy server.
 
 ## Getting Started
 
